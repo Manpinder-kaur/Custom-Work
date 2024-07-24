@@ -1,0 +1,454 @@
+{%- style -%}
+    .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.64 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.64 | round: 0 }}px;
+    }
+    @media screen and (min-width: 769px)  and (max-width: 1199px){
+        .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top | times: 0.70 | round: 0 }}px;
+        padding-bottom: {{ section.settings.padding_bottom | times: 0.70 | round: 0 }}px;
+        }
+    }
+    @media screen and (min-width: 1200px){
+        .section-{{ section.id }}-padding {
+        padding-top: {{ section.settings.padding_top | times: 1.2 | round: 0 }}px;
+        padding-bottom: {{ section.settings.padding_bottom | times: 1.2 | round: 0 }}px;
+        }
+    }
+{%- endstyle -%}
+<style>
+
+
+    {% if section.settings.red == true %}
+    .card-slider.section-{{ section.id }}-padding h2 {
+        color: rgb(210, 41, 41);
+    }
+
+    {% endif %}
+</style>
+
+<div class="data-new {{ section.settings.collection.title }} new_pro_slider card-slider section-{{ section.id }}-padding color-{{ section.settings.color_scheme }} {% if section.settings.custom_class != blank %} customsection-{{ section.settings.custom_class }}{% endif %} {% unless section.settings.title_block %} customsection-featured1 {% else %} customsection-featured2 {% endunless %}">
+  {% if section.settings.title_block %}
+  <div class="container page-width card-slider-right ll">
+    {% endif %}
+        {% unless section.settings.title_block %}
+  <div class="container page-width ">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section-heading">
+                        <h2>/ {{ section.settings.title }}</h2>
+                      <div class="button-box">
+                        {% if section.settings.button_text != blank %}
+                            <a href="{{ section.settings.url }}"
+                               class="button button-primary desktop">{{ section.settings.button_text }}</a>
+                        {% endif %}
+                      {% if section.settings.button_text2 != blank %}
+                            <a href="{{ section.settings.url2 }}"
+                               class="button button-secondary desktop">{{ section.settings.button_text2 }}</a>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+  </div>
+        {% endunless %}
+        <div class="row">
+            {% if section.settings.title_block %}
+                <div class="col-md-2">
+                    <h2 class="mb-5 mt-0">/ {{ section.settings.title }}</h2>
+                      <div class="button-box">
+                    {% if section.settings.button_text != blank %}
+                        <a href="{{ section.settings.url }}"
+                           class="button button-primary desktop">{{ section.settings.button_text }}</a>
+                    {% endif %}
+                  {% if section.settings.button_text2 != blank %}
+                        <a href="{{ section.settings.url2 }}"
+                           class="button button-secondary desktop">{{ section.settings.button_text2 }}</a>
+                    {% endif %}
+                </div>
+                </div>
+            {% endif %}
+            <div class="col-md-{% if section.settings.title_block %}10{% else %}12{% endif %}">
+                {% if section.settings.main_product != blank %}
+                {% assign main_product = section.settings.main_product %}
+                <div class="main-card main-card--mobile">
+            {%- if product.price < product.compare_at_price -%}
+                  
+                                    <div class="product-card__badges">
+                                    <p class="sale-badge">Sale</p>
+                                    </div>
+              {% else %}
+                    {% if  main_product.metafields.custom.badges %}
+                        <div class="product-card__badges">
+                            {% for badge in  main_product.metafields.custom.badges.value %}
+                                {% if badge == 'Sale' %}
+                                    <p class="sale-badge">{{ badge }}</p>
+                                {% elsif badge == 'Flash' %}
+                                    <p class="flash-badge">{{ badge }}</p>
+                                {% elsif badge == 'New' %}
+                                    <p class="new-badge">{{ badge }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{{ main_product.url }}" class="main-card__link"></a>
+                    <div class="main-card__img-wrapper">
+                        <div class="wishlist-engine wishlist-button" data-product_id="{{  main_product.id }}"
+                             data-variant_id="{{  main_product.selected_or_first_available_variant.id }}"
+                             data-full_button="false"
+                             data-css="true"></div>
+                        <img src="{{ main_product.featured_image | img_url: "master" }}" alt="" class="main-card__img">
+                    </div>
+                    <p class="main-card__vendor">{{ main_product.vendor }}</p>
+                   <a href="{{ main_product.url }}" class="link"> <h3 class="main-card__title">{{ main_product.title }}</h3></a>
+                    <div class="product-pricing">
+                        <div class="price-item">
+                            {% if main_product.compare_at_price %}
+                                <span class="body-xl fw-semibold"
+                                      style="color: var(--main-700); text-decoration: line-through">{{ main_product.compare_at_price | money }}</span>
+                            {% endif %}
+                            {% if main_product.compare_at_price %}
+                                <span class="sale-price body-xl fw-semibold">{{ main_product.price | money }}</span>
+                            {% else %}
+                                <span class=" body-xl fw-semibold">{{ main_product.price | money }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card-swiper card-swiper-{{ section.id }} swiper">
+                    <!-- Additional required wrapper -->
+                    <div class="swiper-wrapper mani-swiper {{ section.settings.collection.id  }} {% if section.settings.collection.id == 475709014329 %} mani-swiper {% endif %}">
+                        <!-- Slides -->
+                      {% if section.settings.collection.id == 475709014329 %}
+                        {% assign current_date = 'now' | date: "%Y-%m-%d" %}
+{% assign sixty_days_ago = current_date | date: "%s" | minus: 5184000 | date: "%Y-%m-%d" %}
+                        {% paginate section.settings.collection.products by 100 %}
+                           {% for product in section.settings.collection.products  %}
+                               {% assign product_date = product.created_at | date: "%Y-%m-%d" %}
+                             {% if product_date >= sixty_days_ago %}
+                            <div data-vendor="{{ product.vendor }}" class="swiper-slide new-col-data">
+                              {% render 'new-product-card', product: product %}
+                            </div>
+                               {% endif %}
+                        {% endfor %}
+                          {% endpaginate %}
+                        {% comment %}
+                        {% render 'shuffle_products',section:section %}
+                      {% endcomment %}
+                      {% else %}
+                           {% for product in section.settings.collection.products  limit: 24 %}
+                            <div class="swiper-slide new-col-data">
+                              {% render 'new-product-card', product: product %}
+                            </div>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                  {% render 'collection-images-logic-script' %}
+                    <!-- If we need pagination -->
+                    <div class="swiper-pagination"></div>
+                    <!-- If we need navigation buttons -->
+                    <div class="swiper-button">
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                    </div>
+
+                    <!-- If we need scrollbar --> 
+                {% comment %}    <div class="swiper-scrollbar"></div> {% endcomment %}
+                  <div class="button-box-custom mobile">
+                    {% if section.settings.button_text != blank %}
+                        <a href="{{ section.settings.url }}"
+                           class="button button-primary mobile">{{ section.settings.button_text }}</a>
+                    {% endif %}
+                   {% if section.settings.button_text2 != blank %}
+                      <a href="{{ section.settings.url2 }}"
+                         class="button-2 blog__btn blog__btn--desktop mobile">{{ section.settings.button_text2 }}</a>
+                  {% endif %}
+                </div>
+                </div>
+            </div>
+        </div>
+        {% comment %}
+          <div class="row mobile mt-5">
+              <div class="col-md-12">
+                  {% if section.settings.button_text %}
+                      <a href="{{ section.settings.button_url }}"
+                         class="button button-primary w-100">{{ section.settings.button_text }}</a>
+                  {% endif %}
+              </div>
+          </div>
+          {% endcomment %}
+     {% if section.settings.title_block %} 
+    </div>
+       {% endif %}
+</div>
+
+{% if section.settings.big_slide %}
+    <style>
+        .card-swiper-{{ section.id }} .swiper-slide {
+            width: 25%;
+        }
+
+        .card-swiper-{{ section.id }} .swiper-wrapper > .swiper-slide:nth-child(3n) {
+            width: 50%;
+        }
+    </style>
+{% endif %}
+
+<style>
+    @media (max-width: 991px) {
+        .new_pro_slider .card-swiper {
+            position: unset;
+            left: 0;
+            width: 100%;
+            padding-left: 0;
+            padding-bottom: 0;
+        }
+
+        .card-swiper .swiper-scrollbar {
+            width: 55%;
+            margin: 0 auto;
+            position: relative;
+            bottom: -30px;
+        }
+
+        .card-swiper .swiper-scrollbar .swiper-scrollbar-drag {
+            display: flex;
+        }
+
+        /* .card-swiper .swiper-button-prev,
+        .card-swiper .swiper-button-next {
+            display: none !important;
+        } */
+    }
+</style>
+
+<script>
+  var containers = document.querySelectorAll('.mani-swiper');
+  if(containers.length > 0){
+    containers.forEach(function(container){
+     
+      var products = Array.from(container.querySelectorAll('.new-col-data'));
+      console.log("pro",products);
+      // Shuffle the products array
+      for (let i = products.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [products[i], products[j]] = [products[j], products[i]];
+      }
+
+      // Clear the container and append shuffled products
+      container.innerHTML = '';
+      products.forEach(function(product) {
+          container.appendChild(product);
+      });
+         });
+      console.log("Products have been shuffled and appended.");
+  }
+
+
+  
+	const cardSwiper{{ section.index }} = new Swiper('.card-swiper-{{ section.id }}', {
+		slidesPerGroup: {% if section.settings.amount_of_slides != '' %}1{% else %} 3 {% endif %},
+		slidesPerView: {% if section.settings.big_slide %}'auto'{% else %}{{ section.settings.amount_of_slides }}{% endif %},
+		spaceBetween: 32,
+      {% unless section.settings.title_block %}
+		centeredSlides: false, // Ensure this option is set
+		loop: true, // Optional: if you want to loop slides
+        {% endunless %}
+
+		breakpoints: {
+			320: {
+				slidesPerView:1,
+				spaceBetween: 16,
+				slidesPerGroup: 1,
+      {% unless section.settings.title_block %}
+				centeredSlides: false, // Ensure this option is set
+                  {% endunless %}
+				// Navigation arrows
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				// And if we need scrollbar
+				scrollbar: false
+			},
+			481: {
+				slidesPerView:2,
+				spaceBetween: 16,
+				slidesPerGroup: 1,
+      {% unless section.settings.title_block %}
+				centeredSlides: false, // Ensure this option is set
+                  {% endunless %}
+				// Navigation arrows
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				// And if we need scrollbar
+				scrollbar: false
+			},
+			768: {
+				slidesPerView:2.5,
+				spaceBetween: 16,
+				slidesPerGroup: 1,
+      {% unless section.settings.title_block %}
+				centeredSlides: false, // Ensure this option is set
+                  {% endunless %}
+				// Navigation arrows
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				// And if we need scrollbar
+				scrollbar: false
+			},
+			991: {
+				slidesPerView: {% if section.settings.big_slide %}'auto'{% else %}{{ section.settings.amount_of_slides }}{% endif %},
+				spaceBetween: 32,
+      {% unless section.settings.title_block %}
+				centeredSlides: false, // Ensure this option is set
+                  {% endunless %}
+				// Navigation arrows
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				// And if we need scrollbar
+				scrollbar: false
+			},
+            1500: {
+                {% unless section.settings.title_block %}
+				spaceBetween: 32,
+                slidesPerView: 5.5,
+                centeredSlides: false, // Ensure this option is set
+                  {% else %}
+                spaceBetween: 15,
+                slidesPerView: 3,
+                {% endunless %}
+                // Navigation arrows
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                // And if we need scrollbar
+                scrollbar: false
+            }
+		},
+
+	});
+
+</script>
+
+
+{% schema %}
+{
+  "name": "New Products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "Custom Class"
+    },
+    {
+      "id": "title_block",
+      "type": "checkbox",
+      "label": "Show title block",
+      "default": true
+    },
+    {
+      "id": "red",
+      "type": "checkbox",
+      "label": "Red Title",
+      "default": false
+    },
+    {
+      "id": "big_slide",
+      "type": "checkbox",
+      "label": "Show a big slide",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "info": "t:sections.all.colors.has_cards_info",
+      "default": "scheme-1"
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": "Title"
+    },
+    {
+      "id": "button_text",
+      "type": "text",
+      "label": "Button text"
+    },
+    {
+      "id": "url",
+      "type": "url",
+      "label": "Button URL"
+    },
+    {
+      "id": "button_text2",
+      "type": "text",
+      "label": "Button text"
+    },
+    {
+      "id": "url2",
+      "type": "url",
+      "label": "Button URL"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "id": "amount_of_slides",
+      "type": "number",
+      "label": "Amount of slides",
+      "default": 3
+    },
+    {
+      "id": "main_product",
+      "type": "product",
+      "label": "Product"
+    },
+    {
+      "id": "collection",
+      "type": "collection",
+      "label": "Collection (New Products)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Products"
+    }
+  ]
+}
+{% endschema %}
