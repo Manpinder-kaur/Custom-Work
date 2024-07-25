@@ -1,0 +1,26 @@
+   <div class="search-form-collection">
+              
+                  <input type="text" placeholder="Search Products" class="txt_seacrh"
+      ><span class="icon-searchs"
+        ><img src="https://cdn.shopify.com/s/files/1/0701/4380/3622/files/search-interface-symbol.webp?v=1721891686"
+      ></span>
+              </div>
+
+<script>
+  $("input.txt_seacrh").on("keyup", function() {
+       var v=$(this).val();
+  
+       $(".productListing li.product").each(function() {
+           var s=$(this).attr('data-name');
+           console.log(s);
+           if (s.toLowerCase().indexOf(v.toLowerCase()) === -1) {
+               $(this).removeClass('active');
+                    $(this).hide();
+           }
+           else{
+               $(this).addClass('active');
+                $(this).show();
+           }
+       });
+   });
+</script>
