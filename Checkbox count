@@ -1,0 +1,19 @@
+$(document).on("click","#gf-tree button",function(){
+setTimeout(function(){
+     $('.gf-block-content').before("<span class='active-txt'>All</span>");
+    $('.gf-option-block').each(function(){
+        var selected_count =   $(this).find(".checked").length;
+                    if(selected_count ==1){
+                        $(this).find(".active-txt").html($(this).find(".checked").attr("title"));
+                    }
+                    else if(selected_count >=2){
+                        $(this).find(".active-txt").html(selected_count+" selected");
+                    }
+                        else{
+                            $(this).find(".active-txt").html("All");
+                        }
+                    
+        
+        });
+},2500);
+});
