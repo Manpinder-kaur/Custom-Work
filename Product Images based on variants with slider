@@ -1,0 +1,169 @@
+<css-slider 
+          style="{% if section.settings.gallery_style == "slider" %} display:flex {% else %} display:block {% endif %}"
+          id="css-slider-{{ section.id }}"
+          data-options='{
+            "selector": ".product-gallery-item",
+            "autoHeight": true,
+            {% if section.settings.gallery_style == 'scroll' %}
+              "watchCSS": true,
+            {% endif %}
+            {% if section.settings.gallery_pagination == 'thumbnails' %} 
+              "thumbnails": false, 
+              "navigation": false,
+            {% endif %}
+            "thumbnailsDOM": "<div class=\"product-gallery--dots css-slider-dot-navigation\" style=\"display:none\"><span>{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span></div>",
+            "navigationDOM": "<span style=\"display:none\" class=\"css-slider-button css-slider-prev\" aria-label=\"{{ 'general.accessibility_labels.previous' | t }}\" role=\"button\" aria-controls=\"css-slider-{{ section.id }}\">{%- render 'theme-symbols', icon: 'short-arrow-left' -%}</span><span style=\"display:none\" class=\"css-slider-button css-slider-next\" aria-label=\"{{ 'general.accessibility_labels.next' | t }}\" role=\"button\" aria-controls=\"css-slider-{{ section.id }}\">{%- render 'theme-symbols', icon: 'short-arrow-right' -%}</span>",
+            "listenScroll": false,
+            "undisplay": true
+          }'
+        >
+          <style>
+            @media screen and (max-width: 768px), screen and (max-width: 1024px) and (orientation: portrait) {
+              #css-slider-{{ section.id }}:not(.enabled):not([data-size="1"]) {
+                overflow: hidden;
+                padding-bottom: 60px;
+              }
+              #css-slider-{{ section.id }}:not(.enabled):not([data-size="1"]) .product-gallery-item:not(:first-of-type) {
+                display: none;
+              }
+            }
+          </style>
+
+          {%- for media in product.media -%}
+            {%- render 'product-media', media: media, enable_zoom: section.settings.enable_zoom, loop: section.settings.enable_video_looping, index: forloop.index0, gallery_style: section.settings.gallery_style, gallery_aspect: section.settings.gallery_aspect -%}
+          {%- endfor -%}
+
+        </css-slider>
+
+        {%- if section.settings.gallery_pagination == 'thumbnails' or section.settings.gallery_style == 'scroll' -%}
+
+          <div class="product-gallery__thumbnails product-gallery__thumbnails{% if section.settings.gallery_pagination == 'thumbnails' %}-thumbnails{% else %}--dots{% endif %} scroll scroll-up" aria-hidden="true">
+            <div class="thumbnails-holder">
+              <div class="thumbnails">
+                {%- for media in product.media -%}
+                  <button class="thumbnail" data-index="{{ forloop.index0 }}" data-faux-index="{{ forloop.index0 }}" {% if section.settings.gallery_pagination == 'thumbnails' %} tabindex="0" {% endif %}>
+
+                    <span>{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+
+                    {%- if section.settings.gallery_pagination == 'thumbnails' -%}
+                      <figure class="thumbnail__image lazy-image">
+                        <img 
+                          src="{{ media.preview_image | image_url: width: 64, height: 64, crop: 'center' }}" alt="{{ media.alt | escape }}"
+                          srcset="{{ media.preview_image | image_url: width: 64, height: 64, crop: 'center' }} 64w, {{ media.preview_image | image_url: width: 128, height: 128, crop: 'center' }} 128w"
+                          loading="lazy"
+                          sizes="64px"
+                          width="64" height="64"
+                        />
+                        {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                          <span class="thumbnail__badge">{%- render 'theme-symbols', icon: 'badge-video-thumbnail' -%}</span>
+                        {%- elsif media.media_type == 'model' -%}
+                          <span class="thumbnail__badge">{%- render 'theme-symbols', icon: 'badge-model-thumbnail' -%}</span>
+                        {%- endif -%}
+                      </figure>
+                    {%- endif -%}
+
+                  </button>
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+
+        {%- endif -%}
+<div class="allimages" style="display: none">
+  {%- for media in product.media -%}
+    <div class="allimages-item" data-image-name="{{ media | remove: 'files/' }}">
+            {%- render 'product-media', media: media, enable_zoom: section.settings.enable_zoom, loop: section.settings.enable_video_looping, index: forloop.index0, gallery_style: section.settings.gallery_style, gallery_aspect: section.settings.gallery_aspect -%}
+    </div>
+          {%- endfor -%}
+</div>
+  <div class="allthumbs" style="display: none">
+    {%- for media in product.media -%}
+      <div class="thumbdots" data-index="{{ forloop.index0 }}" data-faux-index="{{ forloop.index0 }}">
+                  <button class="thumbnail" data-index="{{ forloop.index0 }}" data-faux-index="{{ forloop.index0 }}" {% if section.settings.gallery_pagination == 'thumbnails' %} tabindex="0" {% endif %}>
+                    <span>{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+                  </button>
+                  </div>
+                    {% endfor %}              
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var checkedColor = document.querySelector('.product-variant[data-optionname="Colores"] input:checked').getAttribute('data-valuename');
+console.log('checkedColor = '+checkedColor);
+  var galleryItems = document.querySelectorAll('.allimages .allimages-item');
+    var thumbdots = document.querySelectorAll('.allthumbs .thumbdots');
+  document.querySelector('.product-gallery css-slider').innerHTML = '';
+  galleryItems.forEach(function(item) {
+    var imagename = item.getAttribute('data-image-name');
+    if(imagename.includes(checkedColor)) {
+      item.classList.add('show-images');
+      item.classList.remove('hide-images');
+    } 
+    else {
+      item.classList.add('hide-images');
+      item.classList.remove('show-images');
+    }
+  });
+
+    var showImages = document.querySelectorAll('.allimages .allimages-item.show-images');
+var cssSlider = document.querySelector('.product-gallery css-slider');
+
+showImages.forEach(function(item, index) {
+  var imageHTML = item.innerHTML;
+  var updatedHTML = imageHTML
+          .replace(/data-index="\d+"/g, `data-index="${index}"`)
+          .replace(/data-faux-index="\d+"/g, `data-faux-index="${index}"`);
+  cssSlider.insertAdjacentHTML('beforeend', updatedHTML);
+
+  $('.product-gallery__thumbnails .thumbnails button[data-index="'+index+'"]').addClass('show-thumb');
+});
+      var cssSliderElement = document.querySelector('.product-gallery css-slider');
+      if (window.innerWidth <= 768) {
+      if (cssSliderElement) {
+        cssSliderElement.initSlider();
+      }
+    }
+    
+
+document.querySelectorAll('.product-variant[data-optionname="Colores"] input').forEach(function(input) {
+  input.addEventListener('change', function() {
+    var clickedColor = this.getAttribute('data-valuename');
+    var changegalleryItems = document.querySelectorAll('.allimages .allimages-item');
+    var changecssSlider = document.querySelector('.product-gallery css-slider');
+    changecssSlider.innerHTML = '';
+    changegalleryItems.forEach(function(item) {
+      var changeimagename = item.getAttribute('data-image-name');
+      if (changeimagename.includes(clickedColor)) {
+        item.classList.add('show-images');
+        item.classList.remove('hide-images');
+      } else {
+        item.classList.add('hide-images');
+        item.classList.remove('show-images');
+      }
+    });
+    var changeshowImages = document.querySelectorAll('.allimages .allimages-item.show-images');
+    changeshowImages.forEach(function(item, index) {
+      var changeimageHTML = item.innerHTML;
+      var changeupdatedHTML = changeimageHTML
+          .replace(/data-index="\d+"/g, `data-index="${index}"`)
+          .replace(/data-faux-index="\d+"/g, `data-faux-index="${index}"`);
+      changecssSlider.insertAdjacentHTML('beforeend', changeupdatedHTML);
+      $('.product-gallery__thumbnails .thumbnails button[data-index="'+index+'"]').addClass('show-thumb');
+    });
+    var changecssSliderElement = document.querySelector('.product-gallery css-slider');
+      if (window.innerWidth <= 768) {
+      if (changecssSliderElement) {
+        changecssSliderElement.initSlider();
+      }
+    }
+  });
+});
+
+    $(document).on('click','.product-gallery__thumbnails .thumbnails button.show-thumb',function() {
+      $('.product-gallery__thumbnails .thumbnails button').removeClass('activethumb');
+      $(this).addClass('activethumb');
+    });
+
+});
+
+</script>
