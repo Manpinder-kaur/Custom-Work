@@ -1,0 +1,178 @@
+<div class="product-gallery">
+      <div class="thumbnail-slider">
+    {% for image in product.images %}
+      <div class="thumbnail-slide" data-image="{{ image }}">
+        <img src="{{ image | img_url: 'master' }}" alt="{{ image.alt }}">
+      </div>
+    {% endfor %}
+  </div>
+      <div class="slider-main">
+    {% for image in product.images %}
+      <div class="slide-main" data-image="{{ image }}">
+        <img src="{{ image | img_url: 'master' }}" alt="{{ image.alt }}">
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+// variant options
+{%- for value in option.values -%}
+  {%- liquid
+    assign swatch_focal_point = null
+    if value.swatch.image
+      assign image_url = value.swatch.image | image_url: width: 50
+      assign swatch_value = 'url(' | append: image_url | append: ')'
+      assign swatch_focal_point = value.swatch.image.presentation.focal_point
+    elsif value.swatch.color
+      assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+    else
+      assign swatch_value = null
+    endif
+
+    assign option_disabled = true
+    if value.available
+      assign option_disabled = false
+    endif
+  -%}
+
+  {%- capture input_id -%}
+    {{ section.id }}-{{ option.position }}-{{ forloop.index0 -}}
+  {%- endcapture -%}
+
+  {%- capture input_name -%}
+    {{ option.name }}-{{ option.position }}
+  {%- endcapture -%}
+
+  {%- capture input_dataset -%}
+    data-product-url="{{ value.product_url }}"
+    data-option-value-id="{{ value.id }}"
+  {%- endcapture -%}
+
+  {%- capture label_unavailable -%}
+    <span class="visually-hidden label-unavailable">
+      {{- 'products.product.variant_sold_out_or_unavailable' | t -}}
+    </span>
+  {%- endcapture -%}
+
+  {%- if option.name == 'Color' or option.name == 'Colour' -%}
+    {% assign variant = product.variants | where: "option1", value | first %}
+    {%- capture help_text -%}
+      <span class="visually-hidden">{{ value | escape }}</span>
+      {{ label_unavailable }}
+    {%- endcapture -%}
+    {%
+      render 'swatch-input',
+      id: input_id,
+      name: input_name,
+      value: value | escape,
+      swatch: value.swatch,
+      product_form_id: product_form_id,
+      checked: value.selected,
+      visually_disabled: option_disabled,
+      shape: block.settings.swatch_shape,
+      help_text: help_text,
+      additional_props: input_dataset,
+    variant: variant
+    %}
+  {%- else -%}
+    <option
+      id="{{ input_id }}"
+      value="{{ value | escape }}"
+      {% if value.selected %}
+        selected="selected"
+      {% endif %}
+      {{ input_dataset }}
+    >
+      {% if option_disabled -%}
+        {{- 'products.product.value_unavailable' | t: option_value: value -}}
+      {%- else -%}
+        {{- value -}}
+      {%- endif %}
+    </option>
+  {%- endif -%}
+{%- endfor -%}
+
+
+// Swatch input file
+<input
+  type="{{ type | default: 'radio' }}"
+  id="{{ id }}"
+  name="{{ name }}"
+  value="{{ value }}"
+  form="{{ product_form_id }}"
+  class="swatch-input__input{% if visually_disabled %} visually-disabled{% endif %}"
+  {% if checked %}
+    checked
+  {% endif %}
+  {% if disabled %}
+    disabled
+  {% endif %}
+  {% if additional_props %}
+    {{ additional_props }}
+  {% endif %} data-variant-image="{{ variant.image.src }}" data-colorname="{{ value | downcase }}"
+>
+<label
+  for="{{ id }}"
+  title="{{ value }}"
+  class="swatch-input__label{% if shape == 'square' %} swatch-input__label--square{% endif %}"
+>
+  {% render 'swatch', swatch: swatch, shape: shape %}
+  {{ help_text }}
+</label>
+
+<script>
+$('.slider-main').slick({
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  arrows: false,
+  asNavFor: '.thumbnail-slider',
+  infinite: false
+});
+
+$('.thumbnail-slider').slick({
+  slidesToShow: 3,
+  slidesToScroll: 1,
+  asNavFor: '.slider-main',
+  vertical: true,         
+  verticalSwiping: true,
+  dots: false,
+  focusOnSelect: true,
+  prevArrow:"<button type='button' class='slick-prev pull-left'><img src='https://cdn.shopify.com/s/files/1/0589/1788/0001/files/up-arrow.png?v=1724225460' /></button>",
+  nextArrow:"<button type='button' class='slick-next pull-right'><img src='https://cdn.shopify.com/s/files/1/0589/1788/0001/files/down-arrow.png?v=1724224733' /></button>",
+  responsive: [
+{
+      breakpoint: 750,
+      settings: {
+        vertical: false,         
+  verticalSwiping: false,
+        slidesToShow: 5
+      }
+    },
+    {
+      breakpoint: 580,
+      settings: {
+        vertical: false,         
+  verticalSwiping: false,
+        slidesToShow: 3
+      }
+    }
+    ]
+});
+
+$(document).on('click','.product-form__input--swatch input',function() {
+  var clickedCOLOR = $(this).data('colorname');
+  var varImage = $(this).data('variant-image');
+  var slideIndex = $('.product-gallery .slider-main .slide-main[data-image="'+varImage+'"]').data('slick-index');
+  $('.product-gallery .slider-main').slick('slickGoTo', slideIndex);
+});
+
+var defaultColor = $('.product-form__input--swatch input:checked').data('colorname');
+var defaultvarImage = $('.product-form__input--swatch input:checked').data('variant-image');
+  var defaultslideIndex = $('.product-gallery .slider-main .slide-main[data-image="'+defaultvarImage+'"]').data('slick-index');
+  $('.product-gallery .slider-main').slick('slickGoTo', defaultslideIndex);
+
+$(document).on('click','.product-gallery .thumbnail-slider .thumbnail-slide',function() {
+  var imagename = $(this).data('image');
+  $('.product-form__input--swatch input[data-variant-image="'+imagename+'"]').trigger('click');
+});
+</script>
