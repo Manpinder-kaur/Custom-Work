@@ -1,0 +1,48 @@
+{% assign product_bullet = all_products['50-000-standard'] %}
+{% if product_bullet %}
+  <ul class="bullets_data" style="display:none">
+    {% for variant in product_bullet.variants %}
+      <li varid="{{ variant.id }}"></li>
+    {% endfor %}
+  </ul>
+
+{% endif %}
+<script>
+  $.get("https://gunblast.dk/discount/Free%2520Bullets",function(res){
+    console.log('bullets');
+  });
+</script>
+{% if template.suffix == "product-2-0" %}
+ <script>
+$(document).ready(function() {
+  // Function to generate a random quantity between 1 and 10
+  function generateRandomQuantity() {
+    return Math.floor(Math.random() * 5) + 1;
+  }
+
+  // Get all <li> elements with the varid attribute
+  let $listItems = $('.bullets_data li');
+  
+  // Check if there are any <li> elements
+  if ($listItems.length > 0) {
+    // Select a random <li> element
+    let randomIndex = Math.floor(Math.random() * $listItems.length);
+    let $randomItem = $listItems.eq(randomIndex);
+    
+    // Get the variant ID from the selected <li>
+    let variantId = $randomItem.attr('varid');
+    
+    // Generate a random quantity
+    let randomQuantity = generateRandomQuantity();
+    
+    // Append hidden inputs with the random variant ID and quantity
+    $('.product-form form').append(`
+      <input type="hidden" name="items[1][id]" value="${variantId}" class="bullets">
+      <input type="hidden" name="items[1][quantity]" value="1" class="bullets">
+    `);
+  }
+});
+
+
+</script>
+{% endif %}
