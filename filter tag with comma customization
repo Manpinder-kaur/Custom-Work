@@ -1,0 +1,794 @@
+{{ 'product-gallery2.css' | asset_url | stylesheet_tag }}
+{{ 'product-gallery.js' | asset_url | script_tag }}
+<div class="product-gallery2-section">
+  <div class="section">
+    <div class="gallery2-inner">
+      <div class="gallery2-head">
+        {% if section.settings.title != blank %}
+          <h1>{{ section.settings.title }}</h1>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <h4>{{ section.settings.subheading }}</h4>
+        {% endif %}
+      </div>
+      <div class="product-tags-tabs">
+        <ul>
+          {% if section.settings.filter != blank %}
+            <li class="all-tags product-tags active" data-tag="all" data-tag-comma="">{{ section.settings.filter }}</li>
+          {% endif %}
+          {%- capture used_tags -%}
+    {%- endcapture -%}
+          {%- for block in section.blocks -%}
+            {%- assign tag_loop = block.settings.tag -%}
+          
+            {%- unless used_tags contains tag_loop -%}
+              {%- if tag_loop != blank -%}
+                <li data-tag="{{ tag_loop }}" data-tag-comma="{{ block.settings.tag-filter }}" class="product-tags tag-{{ forloop.index }}">{{ tag_loop }}</li>
+                {%- capture used_tags -%}{{ used_tags }}{{ tag_loop }}{% if forloop.last == false %},{% endif %}{%- endcapture -%}
+              {%- endif -%}
+            {%- endunless -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <div class="product-gallery-list">
+        <div class="collection-listing">
+          {%- for block in section.blocks -%}
+            {% if block.settings.image != blank %}
+              <div class="product-listing"  data-tag="{{ block.settings.tag }}" data-tag-comma="{{ block.settings.tag-filter }}">
+                <div class="product-listing-inner">
+                  <div class="product-featured-img">
+                    <a href="/pages/gallery-landing?handle={{ block.settings.url }}">
+                      <div class="product-hover-container">
+                        <span>{{ block.settings.button }}</span>
+                      </div>
+                      {% if block.settings.image != blank %}
+                        <img
+                          src="{{ block.settings.image | img_url: 'master' }}"
+                          width="100%"
+                          height="100%"
+                        >
+                      {% endif %}
+                    </a>
+                  </div>
+                  <!--
+                    <div class="product-title">
+                      <h4>
+                        <a href="/pages/gallery-landing?handle={{ block.settings.url }}">{{ block.settings.heading }}</a>
+                      </h4>
+                    </div>
+                  -->
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Product Gallery",
+  "class": "product-gallert-section-main",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "filter",
+      "label": "Filter"
+    }
+  ],
+"blocks": [
+  {
+    "type": "collection-listing",
+    "name": "Collection Listing",
+    "settings": [
+  {
+      "type": "text",
+      "id": "tag",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "tag-filter",
+      "label": "Tag filters",
+       "info": "Put a comma for multiple tags"
+    },
+    {
+        "id": "image",
+        "type": "image_picker",
+        "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "url",
+      "label": "Get the Look ID"
+    },
+    {
+      "type": "text",
+      "id": "button",
+      "default": "Shop",
+      "label": "Button name"
+    }
+    ]
+  }
+]
+}
+{% endschema %}
+
+
+
+
+
+
+{{ 'gallery-landing-page.css' | asset_url | stylesheet_tag }}
+{{ 'gallery-landing-page.js' | asset_url | script_tag }}
+
+<style>
+  .slick-dotted.slick-slider{
+    margin-bottom:-30px !important;
+  }
+</style>
+
+{%- assign queryString = content_for_header | split: 'pageurl":"' | last | split: '"' | first | split: '?' | last -%}
+{%- assign queryStringParams = queryString | split: "&" -%}
+
+
+{%- assign handleValue = '' -%}
+
+{%- for param in queryStringParams -%}
+  {%- assign paramParts = param | split: "=" -%}
+  {% comment %} Debugging: Print parameter parts {% endcomment %}
+  {%- if paramParts[0] == 'handle' -%}
+    
+    {%- assign handleValue = paramParts[1] | url_encode -%}
+    {% assign split_value = handleValue | split:"%5Cu0026" %}
+    {% assign get_handle = split_value[0] %}
+
+    {% comment %} Debugging: Print handle value {% endcomment %}
+  {%- endif -%}
+{%- endfor -%}
+{% assign target_product = all_products[get_handle] %}
+{% comment %} {% assign target_product = all_products[section.settings.featured_product] %} {% endcomment %}
+{% assign recommended_products = target_product.metafields.custom.gallery_landing_page_recommended_products.value %}
+{% assign follow_image = target_product.metafields.custom.gallery_follow_image %}
+{% assign follow_title = target_product.metafields.custom.gallery_follow_title.value %}
+{% assign follow_text = target_product.metafields.custom.gallery_follow_text.value %}
+{% assign follow_profile_link = target_product.metafields.custom.gallery_follow_profile_link %}
+{% assign follow_link = target_product.metafields.custom.gallery_follow_login_link %}
+<section class="section">
+  <a href="https://thesuffolknest.com/pages/gallery-1" class="back_button">
+    <span class="icon icon-new icon-arrow-long-small ">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="m17.146 6 5.894 6.438m0 0-5.894 6.437m5.894-6.437H0" stroke="currentColor" stroke-width="1.971"></path>
+      </svg></span
+    >Back</a>
+  {%- for block in section.blocks -%}
+    {%- assign currentIndex = forloop.index -%}
+    {%- if get_handle == block.settings.indxid -%}
+      <section class="custom_product_gallery" data-type="{{ block.settings.indxid }}">
+        <div class="left_details">
+          <div class="product_gallery">
+            <div class="product_images">
+              {% if block.settings.image1 != blank %}
+                <div class="image fix_one">
+                  <img src="{{ block.settings.image1 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image2 != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image2 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image3 != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image3 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image4 != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image4 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.video != blank %}
+                <div class="video mmm">
+                  {{
+                    block.settings.video
+                    | video_tag: autoplay: true, muted: true, loop: true, controls: true, image_size: '100%'
+                    | replace: '<video', '<video class="video__video video desktop-video"'
+                  }}
+                  {{
+                    block.settings.video
+                    | video_tag: autoplay: true, muted: true, loop: true, controls: true, image_size: '100%'
+                    | replace: '<video', '<video class="video__video video mobile-video"'
+                  }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="product_thumbnails">
+              {% if block.settings.image1 != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image1 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image2.id != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image2 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image3.id != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image3 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.image4.id != blank %}
+                <div class="image">
+                  <img src="{{ block.settings.image4 | img_url: 'master' }}">
+                </div>
+              {% endif %}
+              {% if block.settings.video.id != blank %}
+                <div class="video kk">
+                  {{
+                    block.settings.video
+                    | video_tag: loop: false, controls: false, image_size: '100%'
+                    | replace: '<video', '<video class=""'
+                  }}
+
+                  <span class="play-badge">
+                    {% render 'icon', icon: 'play-badge' %}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="right_details">
+          <div class="recommended-products">
+            <div class="follow_inner_wrapper">
+              <div class="follow_content">
+                {% if block.settings.heading != blank %}
+                  <div class="follow_title"><h3>{{ block.settings.heading }}</h3></div>
+                {% endif %}
+                <div class="follow_links">
+                  {% if block.settings.text != blank %}
+                    <div class="follow_name">{{ block.settings.text }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="product-list">
+              {% assign target_product1 = all_products[block.settings.featured_product1] %}
+              {% assign target_product2 = all_products[block.settings.featured_product2] %}
+              {% assign target_product3 = all_products[block.settings.featured_product3] %}
+              {% assign target_product4 = all_products[block.settings.featured_product4] %}
+
+              
+              {% if target_product1.id != blank %}
+                <div class="product-loop product-item">
+                  <div class="product-item__inner">
+                    <a href="{{ target_product1.url }}">
+                      <div class="image">
+                        <img
+                          src="{{ target_product1.images[0].src | img_url: 'medium' }}"
+                          alt="{{ target_product1.title }}"
+                        >
+                      </div>
+                    </a>
+                    <div class="content">
+                      <a href="{{ target_product1.url }}">
+                        <h3>{{ target_product1.title }}</h3>
+                      </a>
+                      <!-- <div class="description">
+                        {% assign max_length = 40 %}
+                        {% capture truncated_description %}{{ target_product1.description | strip_html | truncate: max_length }}{% endcapture %}
+                        {% if target_product1.description.size > max_length %}
+                          {{ truncated_description }}
+                        {% else %}
+                          {{ truncated_description }}
+                        {% endif %}
+                      </div> -->
+                      <div class="recommended_price">
+                        <div class="price {% if target_product1.compare_at_price %}compare{% endif %}">
+                          {{ target_product1.price | money }}
+                        </div>
+                        {% if target_product1.compare_at_price %}
+                          <div class="price-compare">{{ target_product1.compare_at_price | money }}</div>
+                        {% endif %}
+                      </div>
+                      {% if target_product1.compare_at_price %}
+                        <div class="difference">
+                          {% assign price_difference = target_product1.compare_at_price
+                            | minus: target_product1.price
+                          %}
+                          {% assign percentage_difference = price_difference
+                            | times: 100
+                            | divided_by: product.compare_at_price
+                          %}
+                          <div class="price-compare-difference">{{ percentage_difference | round: 2 }}%</div>
+                        </div>
+                      {% endif %}
+                      <div
+                        class="product-form-area"
+                        data-product-key="{{ target_product1.key }}"
+                        data-product-image="{{ target_product1.images[0].src | img_url: 'master' }}"
+                        data-product-title="{{ target_product1.title }}"
+                        data-compare-price="{{ target_product1.compare_at_price | money }}"
+                        data-sale-price="{{ target_product1.price | money }}"
+                      >
+                        {% render 'product-gallery-form',
+                          product: target_product1,
+                          button_text: section.settings['add-to-cart']
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              {% if target_product2.id != blank %}
+                <div class="product-loop product-item">
+                  <div class="product-item__inner">
+                    <a href="{{ target_product2.url }}">
+                      <div class="image">
+                        <img
+                          src="{{ target_product2.images[0].src | img_url: 'medium' }}"
+                          alt="{{ target_product2.title }}"
+                        >
+                      </div>
+                    </a>
+                    <div class="content">
+                      <a href="{{ target_product2.url }}">
+                        <h3>{{ target_product2.title }}</h3>
+                      </a>
+                      <!-- <div class="description">
+                        {% assign max_length = 40 %}
+                        {% capture truncated_description %}{{ target_product2.description | strip_html | truncate: max_length }}{% endcapture %}
+                        {% if target_product2.description.size > max_length %}
+                          {{ truncated_description }}
+                        {% else %}
+                          {{ truncated_description }}
+                        {% endif %}
+                      </div> -->
+                      <div class="recommended_price">
+                        <div class="price {% if target_product2.compare_at_price %}compare{% endif %}">
+                          {{ target_product2.price | money }}
+                        </div>
+                        {% if target_product2.compare_at_price %}
+                          <div class="price-compare">{{ target_product2.compare_at_price | money }}</div>
+                        {% endif %}
+                      </div>
+                      {% if target_product2.compare_at_price %}
+                        <div class="difference">
+                          {% assign price_difference = target_product2.compare_at_price
+                            | minus: target_product2.price
+                          %}
+                          {% assign percentage_difference = price_difference
+                            | times: 100
+                            | divided_by: product.compare_at_price
+                          %}
+                          <div class="price-compare-difference">{{ percentage_difference | round: 2 }}%</div>
+                        </div>
+                      {% endif %}
+                      <div
+                        class="product-form-area"
+                        data-product-key="{{ target_product2.key }}"
+                        data-product-image="{{ target_product2.images[0].src | img_url: 'master' }}"
+                        data-product-title="{{ target_product2.title }}"
+                        data-compare-price="{{ target_product2.compare_at_price | money }}"
+                        data-sale-price="{{ target_product2.price | money }}"
+                      >
+                        {% render 'product-gallery-form',
+                          product: target_product2,
+                          button_text: section.settings['add-to-cart']
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              {% if target_product3.id != blank %}
+                <div class="product-loop product-item">
+                  <div class="product-item__inner">
+                    <a href="{{ target_product3.url }}">
+                      <div class="image">
+                        <img
+                          src="{{ target_product3.images[0].src | img_url: 'medium' }}"
+                          alt="{{ target_product3.title }}"
+                        >
+                      </div>
+                    </a>
+                    <div class="content">
+                      <a href="{{ target_product3.url }}">
+                        <h3>{{ target_product3.title }}</h3>
+                      </a>
+                      <!-- <div class="description">
+                        {% assign max_length = 40 %}
+                        {% capture truncated_description %}{{ target_product3.description | strip_html | truncate: max_length }}{% endcapture %}
+                        {% if target_product3.description.size > max_length %}
+                          {{ truncated_description }}
+                        {% else %}
+                          {{ truncated_description }}
+                        {% endif %}
+                      </div> -->
+                      <div class="recommended_price">
+                        <div class="price {% if target_product3.compare_at_price %}compare{% endif %}">
+                          {{ target_product3.price | money }}
+                        </div>
+                        {% if target_product3.compare_at_price %}
+                          <div class="price-compare">{{ target_product3.compare_at_price | money }}</div>
+                        {% endif %}
+                      </div>
+                      {% if target_product3.compare_at_price %}
+                        <div class="difference">
+                          {% assign price_difference = target_product3.compare_at_price
+                            | minus: target_product3.price
+                          %}
+                          {% assign percentage_difference = price_difference
+                            | times: 100
+                            | divided_by: product.compare_at_price
+                          %}
+                          <div class="price-compare-difference">{{ percentage_difference | round: 2 }}%</div>
+                        </div>
+                      {% endif %}
+                      <div
+                        class="product-form-area"
+                        data-product-key="{{ target_product3.key }}"
+                        data-product-image="{{ target_product3.images[0].src | img_url: 'master' }}"
+                        data-product-title="{{ target_product3.title }}"
+                        data-compare-price="{{ target_product3.compare_at_price | money }}"
+                        data-sale-price="{{ target_product3.price | money }}"
+                      >
+                        {% render 'product-gallery-form',
+                          product: target_product3,
+                          button_text: section.settings['add-to-cart']
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              {% if target_product4.id != blank %}
+                <div class="product-loop product-item">
+                  <div class="product-item__inner">
+                    <a href="{{ target_product4.url }}">
+                      <div class="image">
+                        <img
+                          src="{{ target_product4.images[0].src | img_url: 'medium' }}"
+                          alt="{{ target_product4.title }}"
+                        >
+                      </div>
+                    </a>
+                    <div class="content">
+                      <a href="{{ target_product4.url }}">
+                        <h3>{{ target_product4.title }}</h3>
+                      </a>
+                      <!-- <div class="description">
+                        {% assign max_length = 40 %}
+                        {% capture truncated_description %}{{ target_product4.description | strip_html | truncate: max_length }}{% endcapture %}
+                        {% if target_product4.description.size > max_length %}
+                          {{ truncated_description }}
+                        {% else %}
+                          {{ truncated_description }}
+                        {% endif %}
+                      </div> -->
+                      <div class="recommended_price">
+                        <div class="price {% if target_product4.compare_at_price %}compare{% endif %}">
+                          {{ target_product4.price | money }}
+                        </div>
+                        {% if target_product4.compare_at_price %}
+                          <div class="price-compare">{{ target_product4.compare_at_price | money }}</div>
+                        {% endif %}
+                      </div>
+                      {% if target_product4.compare_at_price %}
+                        <div class="difference">
+                          {% assign price_difference = target_product4.compare_at_price
+                            | minus: target_product4.price
+                          %}
+                          {% assign percentage_difference = price_difference
+                            | times: 100
+                            | divided_by: product.compare_at_price
+                          %}
+                          <div class="price-compare-difference">{{ percentage_difference | round: 2 }}%</div>
+                        </div>
+                      {% endif %}
+                      <div
+                        class="product-form-area"
+                        data-product-key="{{ target_product4.key }}"
+                        data-product-image="{{ target_product4.images[0].src | img_url: 'master' }}"
+                        data-product-title="{{ target_product4.title }}"
+                        data-compare-price="{{ target_product4.compare_at_price | money }}"
+                        data-sale-price="{{ target_product4.price | money }}"
+                      >
+                        {% render 'product-gallery-form',
+                          product: target_product4,
+                          button_text: section.settings['add-to-cart']
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  {% endfor %}
+</section>
+<script>
+  
+
+  // $(document).ready(function() {
+    // Decrease quantity
+    $('.gallery-qty-input [data-subtract-quantity]').on('click', function() {
+      var input = $(this).siblings('.quantity-input__input');
+      var currentValue = parseInt(input.val(), 10);
+      if (currentValue > 1) {
+        input.val(currentValue - 1);
+        var minus_value = currentValue - 1;
+        $(this).parent().parent().closest('.product-loop').find('form').attr('data-qty',minus_value);
+      }
+    });
+
+    // Increase quantity
+    $('.gallery-qty-input [data-add-quantity]').on('click', function() {
+      console.log('add');
+      var input = $(this).siblings('.quantity-input__input');
+      var currentValue = parseInt(input.val(), 10);
+      input.val(currentValue + 1);
+      var plus_value = currentValue + 1;
+      $(this).parent().parent().closest('.product-loop').find('form').attr('data-qty',plus_value);
+    });
+  // });
+
+ 
+  
+</script>
+{% schema %}
+{
+  "name": "t:sections.main_product_overview.name",
+  "class": "main-product-section",
+  "tag": "section",
+  "settings": [
+        {
+          "id": "add-to-cart",
+          "type": "text",
+          "label": "Add to Bag button",
+          "default": "Add to Bag"
+        }
+  ],
+"blocks": [
+  {
+    "type": "collection-listing",
+    "name": "collection listing",
+    "settings": [
+       {
+            "id": "indxid",
+            "type": "text",
+            "label": "Get the Look ID"
+        },
+        {
+          "type": "header",
+          "content": "left details"
+        },
+      
+        {
+            "id": "image1",
+            "type": "image_picker",
+            "label": "Image"
+        },
+        {
+            "id": "image2",
+            "type": "image_picker",
+            "label": "Image"
+        },
+        {
+            "id": "image3",
+            "type": "image_picker",
+            "label": "Image"
+        },
+        {
+            "id": "image4",
+            "type": "image_picker",
+            "label": "Image"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "t:shared.settings.video.label",
+          "info": "t:shared.settings.video.info"
+        },
+        {
+          "type": "header",
+          "content": "right details"
+        },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "text"
+    },
+        {
+          "type": "product",
+          "id": "featured_product1",
+          "label": "t:sections.featured_product.settings.product.label"
+        },
+        {
+          "type": "product",
+          "id": "featured_product2",
+          "label": "t:sections.featured_product.settings.product.label"
+        },
+        {
+          "type": "product",
+          "id": "featured_product3",
+          "label": "t:sections.featured_product.settings.product.label"
+        },
+        {
+          "type": "product",
+          "id": "featured_product4",
+          "label": "t:sections.featured_product.settings.product.label"
+        }
+    ]
+  }
+],
+  "presets": [
+    {
+      "name": "t:sections.main_product_overview.name"
+    }
+  ]
+}
+{% endschema %}
+
+
+$(document).on('click', 'li.product-tags', function(e) {
+  e.preventDefault();
+
+  
+  $('li.product-tags').removeClass('active');
+  var get_litag = $(this).attr('data-tag-comma');
+  $(this).addClass('active');
+  
+  // Hide all product-listing elements
+  $('.collection-listing .product-listing').hide().removeClass('active-row');
+  
+  // Show only the elements with matching tags
+  $('.collection-listing .product-listing').each(function() {
+    var product_tag = $(this).attr('data-tag-comma');
+    
+    if (product_tag.indexOf(get_litag) !== -1) {
+      $(this).addClass('active-row').show();
+    }
+    
+   
+  });
+});
+
+
+var ref_interval;
+$(document).on(
+  "click",
+  ".custom_product_gallery .left_details .product_gallery .product_thumbnails .video",
+  function () {
+    ref_interval = setInterval(function () {
+      var alreday = $(
+        ".custom_product_gallery .left_details .product_gallery .product_thumbnails .slick-track"
+      ).css("transform", "translate3d(0px, 0px, 0px)");
+      alreday.css("transform", "translate3d(0px, 0px, 0px)");
+      if (alreday) {
+        // clearInterval(ref_interval);
+      }
+    }, 0.1);
+  }
+);
+
+$(document).on(
+  "click",
+  ".custom_product_gallery .left_details .product_gallery .product_thumbnails .image",
+  function () {
+    $(
+      ".custom_product_gallery .left_details .product_gallery .product_thumbnails .slick-track"
+    ).css("transform", "translate3d(0px, 0px, 0px)");
+
+    clearInterval(ref_interval);
+  }
+);
+$(function () {
+  $(".custom_product_gallery .product_thumbnails").slick({
+    vertical: true,
+    infinite: true,
+    verticalSwiping: true,
+    slidesPerRow: 5,
+    slidesToShow: 5,
+    asNavFor: ".product_images",
+    focusOnSelect: true,
+    arrows: false,
+    responsive: [
+      {
+        breakpoint: 1025,
+        settings: {
+          slidesPerRow: 4,
+          slidesToShow: 4,
+        },
+      },
+      {
+        breakpoint: 767,
+        settings: {
+          vertical: false,
+        },
+      },
+      {
+        breakpoint: 479,
+        settings: {
+          vertical: false,
+          slidesPerRow: 3,
+          slidesToShow: 3,
+          adaptiveHeight: true,
+        },
+      },
+    ],
+  });
+  $(".custom_product_gallery .product_images").slick({
+    slidesPerRow: 1,
+    slidesToShow: 1,
+    asNavFor: ".product_thumbnails",
+    arrows: false,
+    draggable: false,
+    responsive: [
+      {
+        breakpoint: 767,
+        settings: {
+          adaptiveHeight: true,
+          vertical: false,
+          fade: true,
+          dots: true,
+        },
+      },
+    ],
+  });
+});
+
+// // $(document).ready(function() {
+// // Decrease quantity
+// $(".gallery-qty-input [data-subtract-quantity]").on("click", function () {
+//   var input = $(this).siblings(".quantity-input__input");
+//   var currentValue = parseInt(input.val(), 10);
+//   if (currentValue > 1) {
+//     input.val(currentValue - 1);
+//     var minus_value = currentValue - 1;
+//     $(this)
+//       .parent()
+//       .parent()
+//       .closest(".product-loop")
+//       .find("form")
+//       .attr("data-qty", minus_value);
+//   }
+// });
+
+// // Increase quantity
+// $(".gallery-qty-input [data-add-quantity]").on("click", function () {
+//   console.log("add");
+//   var input = $(this).siblings(".quantity-input__input");
+//   var currentValue = parseInt(input.val(), 10);
+//   input.val(currentValue + 1);
+//   var plus_value = currentValue + 1;
+//   $(this)
+//     .parent()
+//     .parent()
+//     .closest(".product-loop")
+//     .find("form")
+//     .attr("data-qty", plus_value);
+// });
+// // });
