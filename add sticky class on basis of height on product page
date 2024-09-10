@@ -1,0 +1,14 @@
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var proleftHeight = document.querySelector('.product-left').offsetHeight;
+    var prorightHeight = document.querySelector('.product-right').offsetHeight;
+    if (proleftHeight > prorightHeight) {
+        document.querySelector('.product-right').classList.add('product-single__sticky');
+        document.querySelector('.product-left').classList.remove('product-single__sticky');
+    } 
+    else {
+        document.querySelector('.product-right').classList.remove('product-single__sticky');
+        document.querySelector('.product-left').classList.add('product-single__sticky');
+    }
+});
+</script>
