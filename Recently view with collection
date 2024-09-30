@@ -1,4 +1,45 @@
+  <style>
+   .recently-products-section{
+   display:none;  
+   }
+    </style>
+  <div class="recently-products-section">
+  
+<div class="recently-viewed-products">
+        <h2>Recently Viewed Products</h2>
+    <ul id="recently-viewed-list" class="recently-viewed-list"></ul>
+</div>
+  </div>
+  <div class="recently-viewed-hidden" data-current="{{ product.handle }}" data-collection="{{ collection.handle }}">
+      {% for product in collections.all.products %}
+        {% assign collection_handles = "" %} <!-- Initialize an empty string -->
+
+{% for collection in product.collections %}
+  {% assign collection_handles = collection_handles | append: collection.handle | append: "," %}
+{% endfor %}
+ <span ids="{{ product.id }}" collection_handle="{{ collection_handles}}"></span>
+      {% endfor %}
+      </div>
 <script>
+ var urlParams = new URLSearchParams(window.location.search);
+var get_store = urlParams.get('storehandle');
+var get_product_handle = "{{ product.handle }}";
+var get_pro_store = localStorage.getItem(get_store);
+  var get_olddata = "";      
+  if(get_pro_store ==undefined){
+          get_olddata = get_product_handle+",";
+        }
+  else{
+    get_olddata = get_pro_store;   
+    get_olddata +=","+get_product_handle+",";
+    //alert(get_olddata);
+  }
+  if(get_store !=undefined){
+  var str = get_olddata;
+str = str.replace(/,([^,]*)$/, '$1');
+    localStorage.setItem(get_store,str);
+   // alert("gg");
+  }
   // Get the limit from the schema setting (ensure valid JavaScript injection)
   const recentlyViewedLimit = {{ block.settings.recently_viewed_limit | default: 4 }};
 
@@ -14,10 +55,7 @@
           document.getElementById('recently-viewed-list').innerHTML = '<li>No recently viewed products</li>';
           return;
       }
-      else if (recentlyViewed.length === 1) {
-          document.getElementById('lth').innerHTML = '<h2>Recently Viewed Products</li>';
-          return;
-      }
+    
 
       let productHTML = '';
       recentlyViewed.slice(0, recentlyViewedLimit).forEach(function(productHandle) {
@@ -32,12 +70,18 @@
 
                
 var get_pro_id = product.id;
-
+console.log('ss'+get_pro_id);
     var get_handle = document.querySelector(".recently-viewed-hidden span[ids='"+get_pro_id+"']").getAttribute("collection_handle");
     var currentcollection = document.querySelector(".recently-viewed-hidden").getAttribute("data-collection");
-                      if(get_handle.includes(currentcollection)){
-            
+var urlParams = new URLSearchParams(window.location.search);
+var get_store = urlParams.get('storehandle');
+var get_local_collection = localStorage.getItem(get_store);
+ var get_pro_handle = product.handle;       
+var current_product = document.querySelector(".recently-viewed-hidden").getAttribute("data-current");
                 
+                if(get_handle.includes(currentcollection) && get_local_collection.includes(get_pro_handle) && get_pro_handle != current_product  ){
+            
+                document.querySelector(".recently-products-section").style.display="block";
                   const priceFormatted = formatPrice(product.price);  // Get formatted price
                   productHTML += `
                       <li class="recently-viewed-item" collection-handle="${product.id}">
@@ -56,26 +100,21 @@ var get_pro_id = product.id;
                 // });      
               });
       });
+
+setTimeout(function(){
+  // var get_length = document.querySelectorAll(".recently-viewed-list li").length;
+  //   if(get_length <=0){
+  //     document.querySelector(".recently-products-section").remove();
+  //   }
+});
+    
   }
 
   document.addEventListener("DOMContentLoaded", function() {
       renderRecentlyViewed();
   });
 </script>
-  <div class="recently-products-section">
-  
-<div class="recently-viewed-products" id='lth'>
-        <h2>Recently Viewed Products</h2>
-    <ul id="recently-viewed-list" class="recently-viewed-list"></ul>
-</div>
-  </div>
-  <div class="recently-viewed-hidden" data-collection="{{ collection.handle }}">
-      {% for product in collections.all.products %}
-        {% assign collection_handles = "" %} <!-- Initialize an empty string -->
 
-{% for collection in product.collections %}
-  {% assign collection_handles = collection_handles | append: collection.handle | append: "," %}
-{% endfor %}
- <span ids="{{ product.id }}" collection_handle="{{ collection_handles}}"></span>
-      {% endfor %}
-      </div>
+
+
+</div>
