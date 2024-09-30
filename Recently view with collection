@@ -1,0 +1,81 @@
+<script>
+  // Get the limit from the schema setting (ensure valid JavaScript injection)
+  const recentlyViewedLimit = {{ block.settings.recently_viewed_limit | default: 4 }};
+
+  // Function to format price from cents to dollars
+  function formatPrice(priceInCents) {
+      return (priceInCents / 100).toFixed(2);  // Convert from cents to dollars and format with two decimal places
+  }
+
+  // Function to fetch and render recently viewed products
+  function renderRecentlyViewed() {
+      const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+      if (recentlyViewed.length === 0) {
+          document.getElementById('recently-viewed-list').innerHTML = '<li>No recently viewed products</li>';
+          return;
+      }
+      else if (recentlyViewed.length === 1) {
+          document.getElementById('lth').innerHTML = '<h2>Recently Viewed Products</li>';
+          return;
+      }
+
+      let productHTML = '';
+      recentlyViewed.slice(0, recentlyViewedLimit).forEach(function(productHandle) {
+          fetch(`/products/${productHandle}.js`)
+              .then(response => response.json())
+              .then(product => {     
+  //              fetch(`/collections?product_id=${product.id}`)  // Adjust this API call based on your setup
+  //                   .then(response => response.json())
+  //                   .then(collections => {
+  // console.log('response');
+  //        console.log(collections);   console.log('end');
+
+               
+var get_pro_id = product.id;
+
+    var get_handle = document.querySelector(".recently-viewed-hidden span[ids='"+get_pro_id+"']").getAttribute("collection_handle");
+    var currentcollection = document.querySelector(".recently-viewed-hidden").getAttribute("data-collection");
+                      if(get_handle.includes(currentcollection)){
+            
+                
+                  const priceFormatted = formatPrice(product.price);  // Get formatted price
+                  productHTML += `
+                      <li class="recently-viewed-item" collection-handle="${product.id}">
+                          <a href="/products/${product.handle }" class="recently-viewed-link">
+                              <img class="recently-viewed-image" src="${product.images[0]}" alt="${product.title}">
+                              <span class="recently-viewed-title">${product.title}  </span>
+                              <span class="recently-viewed-price">$${priceFormatted}</span>  <!-- Display price -->
+                             
+                          </a>
+                        
+                          
+                      </li>`;
+                  document.getElementById('recently-viewed-list').innerHTML = productHTML;
+
+                      }
+                // });      
+              });
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+      renderRecentlyViewed();
+  });
+</script>
+  <div class="recently-products-section">
+  
+<div class="recently-viewed-products" id='lth'>
+        <h2>Recently Viewed Products</h2>
+    <ul id="recently-viewed-list" class="recently-viewed-list"></ul>
+</div>
+  </div>
+  <div class="recently-viewed-hidden" data-collection="{{ collection.handle }}">
+      {% for product in collections.all.products %}
+        {% assign collection_handles = "" %} <!-- Initialize an empty string -->
+
+{% for collection in product.collections %}
+  {% assign collection_handles = collection_handles | append: collection.handle | append: "," %}
+{% endfor %}
+ <span ids="{{ product.id }}" collection_handle="{{ collection_handles}}"></span>
+      {% endfor %}
+      </div>
