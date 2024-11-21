@@ -1,0 +1,485 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+{{ 'component-slider.css' | asset_url | stylesheet_tag }}
+{{ 'template-collection.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- unless section.settings.quick_add == 'none' -%}
+  {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endunless -%}
+
+{%- if section.settings.quick_add == 'standard' -%}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if section.settings.quick_add == 'bulk' -%}
+  <script src="{{ 'quick-add-bulk.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{% assign base_col = section.settings.collection %}
+<script type="application/json" class="getData" id="ProductJson-{{ section.id }}">
+  {{ base_col.products | json }}
+</script>
+
+<style>
+.results_page_inner ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}  
+.cond_logic_main {
+    text-align: center;
+    padding-top: 60px;
+    width: 55%;
+    margin: 0 auto;
+}
+.cond_logic_main .cond_logic_input {
+    width: 100%;
+    text-align: center;
+    border-bottom-color: #000 !important;
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+}
+.cond_logic_main .cond_logic_input::placeholder {
+    font-size: 25px;
+    opacity: .6;
+}  
+</style>
+
+<div class="background-image quizMain" {% if section.settings.background-image != blank %} style="background-image: url('{{ section.settings.background-image | img_url: 'master' }}');"{% endif %}>
+  <div class="page-width">
+    <div class="quizWrap">
+      <div class ="quiz-wrap-bar">
+            
+            <span class="quiz-number actv" dataloop="loop1"><p>1</p></span>
+            <span class="quiz-number" dataloop="loop2"><p>2</p></span>
+            <span class="quiz-number" dataloop="loop3"><p>3</p></span>
+            <span class="quiz-number" dataloop="loop4"><p>4</p></span>
+            <span class="quiz-number" dataloop="loop5"> <p>5</p></span>
+            <span class="quiz-number" dataloop="loop6"><p>6</p></span>
+        
+
+        </div>
+      {% for qz in page.metafields.custom.quiz.value %}
+        <div class="quiz-frames {% if forloop.first %}actv{% endif %}"  dataloop="loop{{ forloop.index }}">
+          <div class="quiz-frame-inner">
+            <div class="topHdr center">
+              <h2>{{ qz.main_heading }}</h2>
+              <h3>{{ qz.sub_heading }}</h3>
+            </div>
+
+            {% assign titles = qz.option_title.value %}
+            {% assign images = qz.option_icons.value %}
+            {% assign text = qz.option_subtitle.value %}
+            {% assign con_logic = qz.conditional_logic %}
+            {% assign which_field = qz.which_field %}
+            {% assign text_label = qz.textbox_label %}
+            
+            {% assign tags = qz.option_tags.value %}
+            {% assign count = 0 %}            
+
+            <div class="main_quizzes">
+              
+              <div class="main_quizzes_content">
+
+                {% if images != blank %}
+                  {% for img in images %}
+                    <div class="qz_item">
+                      <div class="qz_item_innr">
+                        <input type="radio" name="{{ qz.question }}" value="{{ tags[count] }}">
+                        <label for="{{ qz.question }}">                        
+                          <div class="icnWrp">
+                            <img src="{{ img | img_url: 'master' }}" alt="icons" />
+                          </div>
+                          <h4>{{ titles[count] }}</h4>
+                          <p>{{ text[count] }}</p>
+                        </label>
+                      </div>
+                    </div>
+                  {% assign count= count |plus:1 %}
+                  {% endfor %}   
+                {% else %}
+                  {% for titl in titles %}
+                    <div class="qz_item {% if tags[count] == which_field %}hasCondition{% endif %}">
+                      <div class="qz_item_innr">
+                        <input type="radio" name="{{ qz.question }}" value="{{ tags[count] }}">
+                        <label for="{{ qz.question }}">
+                          <h4>{{ titl }}</h4>
+                          <p>{{ text[count] }}</p>                          
+                        </label>
+                      </div>
+                    </div>
+                  {% assign count= count |plus:1 %}
+                  {% endfor %}   
+                {% endif %}                
+                
+              </div>              
+
+              {% if con_logic == true %}
+                <div class="cond_logic_main" style="display: none;">
+                  <input type="text" class="cond_logic_input" placeholder="{{ text_label }}" />
+                </div>
+              {% endif %}
+             
+            </div>
+
+            <div class="bottom_buttons">
+              <div class="btnWrap">
+                <button class="button button-secondary button-back ">BACK</button>
+                <button class="button button-primary {% if forloop.last %}finalSubmit goNext{% else %}goNext{% endif %}" disabled>{% if forloop.last %}SUMBIT{% else %}CONTINUE{% endif %}</button>
+            
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+      {% endfor %}
+    </div>
+
+    <div class="loaderAnim" style="display: none;">
+      <div class="animGif">
+        <img src="https://cdn.shopify.com/s/files/1/0796/0995/4497/files/Logo-animation_loop.gif?v=1725949542">
+      </div>
+    </div>
+
+    <div class="results_page" style="display: none;">
+      <div class="notice_part" style="display: none;"> </div>
+       <div class="results_page_wrap" style="display: none;">
+         <div class="topHdr center">
+           <h2>Recommended products</h2>
+         </div>      
+         <div class="results_page_inner">
+           <ul>
+    
+           </ul>
+         </div>
+       </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- <button id="clickMe">CLICK</button> -->
+
+<script>
+  const kebabCase = string => string
+      .replace(/([a-z])([A-Z])/g, "$1-$2")
+      .replace(/[\s_]+/g, '-')
+      .toLowerCase();  
+  let thisJSON = JSON.parse($(".getData").html());
+  
+  $(".qz_item_innr input").change(function(){
+    if($(this).parent().parent().hasClass("hasCondition")){
+      $(this).parents(".quiz-frame-inner").find(".bottom_buttons").find(".button").prop("disabled", true); 
+      $(this).parents(".main_quizzes").find(".cond_logic_main").show();
+    } else {
+      $(this).parents(".quiz-frame-inner").find(".bottom_buttons").find(".button").prop("disabled", false); 
+      $(this).parents(".main_quizzes").find(".cond_logic_main").hide();
+    }
+  });
+
+  $(".cond_logic_input").keyup(function(){
+    $(this).parents(".quiz-frame-inner").find(".bottom_buttons").find(".button").prop("disabled", false); 
+    $(this).parents(".quiz-frame-inner").find("input[type='radio']:checked").val($(".cond_logic_input").val())
+  });
+
+  let mainData = [];
+
+  $(".goNext").click(function(){
+//  let mk=$(".quiz-frames.actv").attr('loop');
+// console.log(mk);
+// $('.quiz-wrap-bar span.quiz-number[loop="'+mk+'"]').addClass('actv');
+    $(this).parents(".quiz-frames").removeClass("actv").hide();
+    $(this).parents(".quiz-frames").next().addClass("actv").show();
+    
+  var get_loop = $(this).closest(".quizWrap").find(".quiz-frames.actv").attr('dataloop');
+      var get_prev = $(".quiz-frames.actv").prev(".quiz-frames").attr("dataloop");
+      var get_quiz = $(".quiz-number.actv").prev(".quiz-number").attr("dataloop");
+    
+                         if(get_quiz == undefined){
+                                 
+                         }
+                         else{
+
+                      var get_previous_div = $(".quiz-number.actv").prev(".quiz-number");
+                     $(get_previous_div).addClass("prev");
+                            // $(".quiz-number.actv").removeClass("prev");
+                         }
+
+    //$(".quiz-wrap-bar .quiz-number").removeClass('actv');
+$(".quiz-wrap-bar .quiz-number[dataloop="+get_loop+"]").addClass('actv');
+    $(".quiz-wrap-bar .quiz-number[dataloop="+get_loop+"]").prev(".quiz-number").addClass('actvbar');
+
+    let thiskey = $(this).parents(".quiz-frame-inner").find("input[type='radio']:checked").attr("name");
+    let thisVal = $(this).parents(".quiz-frame-inner").find("input[type='radio']:checked").val();
+    let isCustomVal = $(this).parents(".quiz-frame-inner").find("input[type='radio']:checked").parent().parent().hasClass("qz_item hasCondition") ? true : false;
+    
+    let newEntry = {
+        "name": thiskey,
+        "value": kebabCase(thisVal.trim()),
+        "custom_val": isCustomVal
+    };
+
+    mainData.push(newEntry);
+    
+    // $.each(mainData, function(index, entry) {
+    //     if (entry.name === newEntry.name) {
+    //         // entry.value = newEntry.value;
+    //     } else {
+    //         // mainData.push(newEntry);
+    //     }
+    // });
+    // updateEntry(mainData, newEntry);
+
+  
+       
+    //alert(dd);
+ 
+
+    
+  });
+
+$(".button-back").click(function(){
+        var get_prev = $(".quiz-frames.actv").prev(".quiz-frames").attr("dataloop");
+
+   $(".quiz-wrap-bar .quiz-number[dataloop="+get_prev+"]").removeClass('actvbar');
+  
+        var get_quiz = $(".quiz-number.actv").prev(".quiz-number").attr("dataloop");
+                         if(get_prev == undefined){
+                                 
+                         }else{
+                             var get_previous_div = $(".quiz-frames.actv").prev(".quiz-frames");
+                             $(".quiz-frames.actv").removeClass("actv").hide();
+                         $(get_previous_div).addClass("actv").show();
+                            var get_quiz_number = $(".quiz-number.actv").prev(".quiz-number");
+                             $(".quiz-number.actv").removeClass("actv");
+                            $(get_quiz_number).addClass("actv");
+                         }
+       
+   });
+
+
+  $(".finalSubmit").click(function(){
+    console.log("mainData", mainData);
+    let curatedData = [];
+    let newCuratedData = [];
+
+      $(mainData).each(function(){
+        let gotVal = this.value;
+        if (gotVal.indexOf(',') > -1) { 
+          let splittedGotVal = gotVal.split(',') 
+          $(splittedGotVal).each(function(e, i){
+            curatedData.push(i);
+          });
+        } else {
+          curatedData.push(gotVal.toString());
+        }
+      });   
+
+      let subCuratedData = Array.from(new Set(curatedData));
+
+      thisJSON.forEach(function(val, conunt){
+        var productTags = val.tags;
+        var isMatch = productTags.some(function(tag) {
+            return subCuratedData.includes(tag);
+        });
+
+        if (isMatch) {
+            newCuratedData.push(val);
+        }        
+      }); 
+
+      console.log("curatedData", curatedData);
+    
+      if(newCuratedData.length){
+        newCuratedData.forEach(function(val, conunt){
+          var productTags = val.tags;
+
+          console.log(productTags);
+          
+          var isMatch = productTags.some(function(tag) {
+              return curatedData.includes(tag);
+          });
+  
+          if (isMatch) {
+            var productHTML = `
+              <li class="grid__item">
+                <div class="card_inner">
+                  <a href="/products/${val.handle}" class="fullA"> </a>
+                  <div class="img_wrapperr">
+                    <img src="${val.images[0]}" alt="${val.title}">
+                  </div>
+                  <div class="card_cont">
+                    <h2>${val.title}</h2>
+                    <p>Price: $${val.price / 100}</p>                
+                  </div>
+                </div>
+              </li>
+            `;
+
+            $(".results_page_wrap").show();
+            $('.results_page_inner ul').append(productHTML);
+          }
+        });        
+      } else {
+        $(".notice_part").text("Result not found!").show();
+      }    
+     
+    // if($("[name='favourite-roaster']:checked").val() !== "select-from-your-top-picks"){
+    //   let newCuratedData = [];
+    //   let fav_roaster = $("[name='favourite-roaster']").val();
+
+    //   final_fav_roaster = kebabCase(fav_roaster);    
+
+    //   $(mainData).each(function(){
+    //     if(this.custom_val != true){
+    //       curatedData.push(this.value);          
+    //     }
+    //   });
+      
+    //   thisJSON.forEach(function(val, conunt){
+    //     var productTags = val.tags;
+    //     var isMatch = productTags.some(function(tag) {
+    //         return final_fav_roaster.includes(tag);
+    //     });
+
+    //     if (isMatch) {
+    //         newCuratedData.push(val);
+    //     }
+    //   });
+
+    //   if(newCuratedData.length){
+    //     newCuratedData.forEach(function(val, conunt){
+    //       var productTags = val.tags;
+    //       var isMatch = productTags.some(function(tag) {
+    //           return curatedData.includes(tag);
+    //       });
+  
+    //       if (isMatch) {
+    //         var productHTML = `
+    //           <li class="grid__item">
+    //             <div class="card_inner">
+    //               <a href="/products/${val.handle}" class="fullA"> </a>
+    //               <div class="img_wrapperr">
+    //                 <img src="${val.images[0]}" alt="${val.title}">
+    //               </div>
+    //               <div class="card_cont">
+    //                 <h2>${val.title}</h2>
+    //                 <p>Price: $${val.price / 100}</p>                
+    //               </div>
+    //             </div>
+    //           </li>
+    //         `;
+
+    //         $(".results_page_wrap").show();
+    //         $('.results_page_inner ul').append(productHTML);
+    //       }
+    //     });        
+    //   } else {
+    //     $(".notice_part").text(fav_roaster + " not found!").show();
+    //   }      
+      
+    // } 
+    // else {
+    //   $(mainData).each(function(){
+    //     curatedData.push(this.value);
+    //   });   
+
+
+    //   thisJSON.forEach(function(val, conunt){
+    //     var productTags = val.tags;
+    //     var isMatch = productTags.some(function(tag) {
+    //         return curatedData.includes(tag);
+    //     });
+
+    //     if (isMatch) {
+    //       var productHTML = `
+    //         <li class="grid__item">
+    //           <div class="card_inner">
+    //             <a href="/products/${val.handle}" class="fullA"> </a>
+    //             <div class="img_wrapperr">
+    //               <img src="${val.images[0]}" alt="${val.title}">
+    //             </div>
+    //             <div class="card_cont">
+    //               <h2>${val.title}</h2>
+    //               <p>Price: $${val.price / 100}</p>                
+    //             </div>
+    //           </div>
+    //         </li>
+    //       `;
+
+    //       $(".results_page_wrap").show();
+    //       $('.results_page_inner ul').append(productHTML);
+    //     }
+    //   });             
+      
+    //   // $(".resultPros").each(function() {
+    //   //     var productTags = $(this).data("tags").split(', ');
+          
+    //   //     var isMatch = productTags.some(function(tag) {
+    //   //         return curatedData.includes(tag);
+    //   //     });
+  
+    //   //     if (isMatch) {
+    //   //         $(this).show();
+    //   //     } else {
+    //   //         $(this).hide();
+    //   //     }
+    //   // });  
+    // }  
+
+    $(".loaderAnim").fadeIn();
+    setTimeout(function(){
+      $(".loaderAnim").fadeOut();
+      $(".quizWrap").hide();
+      $(".results_page").show();
+    }, 3000);
+    
+  });
+
+  // $("#clickMe").click(function(){
+
+  //   console.log(mainData);
+    
+  //   // 
+
+
+  // });
+  
+</script>
+
+{% schema %}
+  {
+    "name": "Quiz",
+    "class": "quiz",
+    "settings": [
+      {
+        "type":"image_picker",
+        "id": "background-image",
+        "label": "Background-Image"
+      },
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "Collection"
+      }      
+    ],
+    "presets": [
+    {
+      "name": "Quiz"
+    }
+  ]
+  }
+{% endschema %}
