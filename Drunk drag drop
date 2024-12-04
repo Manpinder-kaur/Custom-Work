@@ -1,0 +1,971 @@
+    <!-- Include Slick CSS -->
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+<style>
+ #close-popup {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+}
+  .options button {
+    width: unset;
+}
+  #image-upload-popup h2 {
+    text-align: center;
+}
+
+  .options {
+    width: 50%;
+}
+  select#customization-option {
+    padding: 5px;
+    border-radius: 12px;
+}
+  div#text-field {
+    width: 100%;
+  margin: 20px 0px;
+}
+  textarea#custom-text {
+    width: 50%;
+}
+  #image-upload-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    width: 90%;
+    max-width: 1000px;
+    border-radius:25px;
+  }
+   .popup-content {
+    display: flex;
+    align-items: center;
+    gap:20px;
+}
+  .image-wrap{
+    width:50%;
+  }
+  #product-image-container {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+  }
+  #product-image {
+    max-width: 100%;
+    height: auto;
+  }
+  #overlay-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border: 1px dashed #999;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    pointer-events: none;
+    overflow:hidden;
+  }
+  #overlay-content img,
+  #overlay-content .text-overlay {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+ .text-overlay {
+    font-size: 10mm;
+    color: #000;
+    text-align: center;
+    display: flex;
+    line-height: 1.2;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+  .upload-section {
+        border: 2px dashed #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 10px;
+    width: 100%;
+    height: 22%;
+    max-width: 400px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+.upload-box {
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    cursor: pointer;
+    background-color: #f9f9f9; / Light background similar to the image /
+    position: relative;
+    height:100%;
+    padding: 10px;
+    width:100%;
+}
+.upload-box input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.upload-box p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    color: #666666;
+}
+.upload-box span {
+    font-size: 14px;
+    color: #999999;
+}
+.upload-box::before {
+    content: '';
+    display: block;
+    width: 55px;
+    height: 55px;
+    background: url('https://cdn.shopify.com/s/files/1/0893/7671/9194/files/Group_1000001887.png?v=1727684537') no-repeat center center;
+    background-size: contain;
+    margin-bottom: 0px;
+}
+  @media (max-width: 1440px) {
+    #image-upload-popup {
+        width: 90%;
+        max-width: 800px;
+        height: 530px;
+        overflow-y: scroll;
+    }
+}
+  @media only screen and (max-width: 768px) {
+    #image-upload-popup {
+        width: 75%;
+        max-width: 600px;
+        height: 530px;
+        overflow-y: scroll;
+    }
+}
+  .box {
+    position: relative;
+    user-select: none;
+    transform: translate(-50%, -50%);
+}
+
+.box-wrapper {
+    position: absolute;
+    transform-origin: top left;
+    user-select: none;
+  cursor: move;
+}
+
+.dot {
+    height: 10px;
+    width: 10px;
+    background-color: #00000000;
+    position: absolute;
+    border-radius: 100px;
+    /* border: 1px solid white; */
+    user-select: none;
+}
+
+.dot:hover {
+    background-color: #0D47A1;
+}
+
+.dot.left-top {
+    top: -5px;
+    left: -5px;
+    cursor: nw-resize;
+}
+
+.dot.left-bottom {
+    bottom: -5px;
+    left: -5px;
+    cursor: sw-resize;
+}
+
+.dot.right-top {
+    top: -5px;
+    right: -5px;
+    cursor: ne-resize;
+}
+
+.dot.right-bottom {
+    bottom: -5px;
+    right: -5px;
+    cursor: se-resize;
+}
+
+.dot.top-mid {
+    top: -5px;
+    left: calc(50% - 5px);
+    cursor: n-resize;
+}
+
+.dot.left-mid {
+    left: -5px;
+    top: calc(50% - 5px);
+    cursor: w-resize;
+}
+
+.dot.right-mid {
+    right: -5px;
+    top: calc(50% - 5px);
+    cursor: e-resize;
+}
+
+.dot.bottom-mid {
+    bottom: -5px;
+    left: calc(50% - 5px);
+    cursor: s-resize;
+}
+
+.dot.rotate {
+    top: -30px;
+    left: calc(50% - 5px);
+    cursor: url('https://findicons.com/files/icons/1620/crystal_project/16/rotate_ccw.png'), auto;
+}
+
+.rotate-link {
+    position: absolute;
+    width: 1px;
+    height: 15px;
+    background-color: #1E88E5;
+    top: -20px;
+    left: calc(50% + 0.5px);
+    z-index: -1;
+}
+  .dot.rotate {
+    top: -30px;
+    left: calc(50% - 5px);
+    background-image: url(https://cdn.shopify.com/s/files/1/0893/7671/9194/files/2.png?v=1728461056);
+    object-fit: contain;
+    background-size: contain;
+    height: 20px;
+    width: 20px;
+    display: block !important;
+    border: 1px solid white;
+}
+.icon img {
+    width: 100%;
+}
+.close-control {
+    top: -7px;
+    left: -9px;
+    border: 1px solid white;
+    border-radius: 100px;
+}
+.icon {
+    position: absolute;
+    width: 19px;
+    display: flex;
+    cursor: pointer;
+}
+  div#right-bottom {
+    display: block;
+}
+  .dot.right-mid {
+    background-image: url(https://cdn.shopify.com/s/files/1/0893/7671/9194/files/4.png?v=1728461055);
+    object-fit: contain;
+    background-size: contain;
+    height: 20px;
+    width: 20px;
+    display: block;
+    right: -10px !important;
+    top: unset !important;
+    bottom: -10px !important;
+    border: 1px solid white;
+}
+  .options .product-form__submit {
+    background-color: rgb(183 172 162);
+    width: 40%;
+}
+</style>
+<!-- Popup Container -->
+<div id="image-upload-popup" style="display: none;">
+    <a id="close-popup">x</a>
+  <h2>Customize Your Product</h2>
+  <div class="popup-content">
+    <div class="image-wrap">
+    <!-- Display Current Product Image Dynamically -->
+    <div id="product-image-container">
+      
+      <img id="product-image" src="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}">
+      <div class="box-wrapper" id="box-wrapper">
+
+    <div class="box" id="box">
+                   <div id="overlay-frame" >
+        <div id="overlay-content"></div>
+      </div>
+        <div class="dot rotate" id="rotate"></div>
+        <div class="dot left-top" id="left-top"><span class="icon close-control"><img src="https://cdn.shopify.com/s/files/1/0893/7671/9194/files/1.png?v=1728461055" alt="" loading="lazy" height="" width=""></span></div>
+        <div class="dot left-bottom" id="left-bottom"></div>
+        <div class="dot top-mid" id="top-mid"></div>
+        <div class="dot bottom-mid" id="bottom-mid"></div>
+        <div class="dot left-mid" id="left-mid"></div>
+        <div class="dot right-mid" id="right-mid"></div>
+        <div class="dot right-bottom" id="right-bottom"></div>
+        <div class="dot right-top" id="right-top"></div>
+        <div class="rotate-link"></div>
+    </div>
+</div>
+ 
+      
+    </div>
+      <div class="product-thumbnails-slider">
+          <div class="thumbnail-slider-wrapper">
+            {% for image in product.images %}
+            <div class="thumbnail-slide">
+              <img src="{{ image.src | img_url: '200x' }}" alt="{{ image.alt | escape }}" data-large="{{ image.src | img_url: '600x' }}">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+    </div>
+<!-- Choose Customization Option -->
+    <div class="options">
+      <label for="customization-option">Choose Customization:</label>
+      <select id="customization-option">
+        <option value="upload">Upload Image</option>
+        <option value="text">Add Text</option>
+      </select>
+    
+<div>
+    <!-- Upload Image Option -->
+    <div class="upload-section cmn" id="upload-field" style="display: block;"> 
+      <div class="upload-box">
+        <input type="file" id="image-upload-input" accept="image/*">
+        <p>Upload Your File</p>
+        <span>Begin Customizing Now</span>
+        <p id="image-dimensions" style=""></p>
+        <p id="fileName" style="display:none;"></p>
+      </div>
+    </div>
+
+    <!-- Text Input Option -->
+    <div id="text-field" style="display: none;">
+      <textarea id="custom-text" placeholder="Enter your text"></textarea>
+      <p id="text-dimensions" style=""></p>
+    </div>
+</div>
+      <div id="main_qty" style="display: none;"></div>
+<button id="customizeBtn"  name="add" class="product-form__submit button button--full-width button--primary">
+            <span>Add to cart
+</span>
+
+<div class="loading__spinner hidden">
+  <svg xmlns="http://www.w3.org/2000/svg" class="spinner" viewBox="0 0 66 66"><circle stroke-width="6" cx="33" cy="33" r="30" fill="none" class="path"></circle></svg>
+</div>
+</button>
+  </div>
+    </div>
+  <div>
+  <canvas id="merged-image-canvas" style="display: none;"></canvas>
+  <img id="final-merged-image" src="" alt="Final Merged Image" style="display: none;">
+</div>
+  <div id="dimensionsDiv"></div>
+</div>
+<script>
+var box = document.getElementById("box");
+var boxWrapper = document.getElementById("box-wrapper");
+const minWidth = 40;
+const minHeight = 40;
+
+
+var initX, initY, mousePressX, mousePressY, initW, initH, initRotate;
+
+function repositionElement(x, y) {
+    boxWrapper.style.left = x + 'px';
+    boxWrapper.style.top = y + 'px';
+}
+
+function resize(w, h) {
+    box.style.width = w + 'px';
+    box.style.height = h + 'px';
+}
+
+
+function getCurrentRotation(el) {
+    var st = window.getComputedStyle(el, null);
+    var tm = st.getPropertyValue("-webkit-transform") ||
+        st.getPropertyValue("-moz-transform") ||
+        st.getPropertyValue("-ms-transform") ||
+        st.getPropertyValue("-o-transform") ||
+        st.getPropertyValue("transform")
+    "none";
+    if (tm != "none") {
+        var values = tm.split('(')[1].split(')')[0].split(',');
+        var angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+        return (angle < 0 ? angle + 360 : angle);
+    }
+    return 0;
+}
+
+function rotateBox(deg) {
+    boxWrapper.style.transform = `rotate(${deg}deg)`;
+}
+
+// drag support
+// boxWrapper.addEventListener('mousedown', function (event) {
+//     if (event.target.className.indexOf("dot") > -1) {
+//         return;
+//     }
+
+//     initX = this.offsetLeft;
+//     initY = this.offsetTop;
+//     mousePressX = event.clientX;
+//     mousePressY = event.clientY;
+
+
+//     function eventMoveHandler(event) {
+//         repositionElement(initX + (event.clientX - mousePressX),
+//             initY + (event.clientY - mousePressY));
+//     }
+
+//     boxWrapper.addEventListener('mousemove', eventMoveHandler, false);
+//     window.addEventListener('mouseup', function eventEndHandler() {
+//         boxWrapper.removeEventListener('mousemove', eventMoveHandler, false);
+//         window.removeEventListener('mouseup', eventEndHandler);
+//     }, false);
+
+// }, false);
+// done drag support
+
+// handle resize
+var rightMid = document.getElementById("right-mid");
+var leftMid = document.getElementById("left-mid");
+var topMid = document.getElementById("top-mid");
+var bottomMid = document.getElementById("bottom-mid");
+
+var leftTop = document.getElementById("left-top");
+var rightTop = document.getElementById("right-top");
+var rightBottom = document.getElementById("right-bottom");
+var leftBottom = document.getElementById("left-bottom");
+
+function resizeHandler(event, left = false, top = false, xResize = false, yResize = false) {
+    const overlayImage = document.querySelector("#overlay-content img");
+    const dimensionsDiv = document.querySelector("#main_qty");
+const main_image = document.querySelector("#image-dimensions");
+  
+    if (overlayImage) {
+        const PIXELS_TO_CM = 2.54 / 96; // Conversion factor from pixels to cm (96 DPI)
+
+        // Initialize dimensions and display total CM
+        const imgWidth = overlayImage.width;
+        const imgHeight = overlayImage.height;
+        const totalPixels = imgWidth + imgHeight;
+        const totalCM = Math.round(totalPixels * PIXELS_TO_CM); // Total dimensions in cm rounded
+        dimensionsDiv.textContent = `${totalCM}`;
+        main_image.textContent = `Total Dimensions: ${totalCM} cm`;
+
+        // Initialize other values
+        initX = boxWrapper.offsetLeft;
+        initY = boxWrapper.offsetTop;
+        mousePressX = event.clientX;
+        mousePressY = event.clientY;
+
+        initW = box.offsetWidth;
+        initH = box.offsetHeight;
+
+        initRotate = getCurrentRotation(boxWrapper);
+        const initRadians = (initRotate * Math.PI) / 180;
+        const cosFraction = Math.cos(initRadians);
+        const sinFraction = Math.sin(initRadians);
+
+        function eventMoveHandler(event) {
+            const wDiff = event.clientX - mousePressX;
+            const hDiff = event.clientY - mousePressY;
+            const rotatedWDiff = cosFraction * wDiff + sinFraction * hDiff;
+            const rotatedHDiff = cosFraction * hDiff - sinFraction * wDiff;
+
+            let newW = initW, newH = initH, newX = initX, newY = initY;
+
+            if (xResize) {
+                if (left) {
+                    newW = initW - rotatedWDiff;
+                    if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = initW - minWidth;
+                    }
+                } else {
+                    newW = initW + rotatedWDiff;
+                    if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = minWidth - initW;
+                    }
+                }
+                newX += 0.5 * rotatedWDiff * cosFraction;
+                newY += 0.5 * rotatedWDiff * sinFraction;
+            }
+
+            if (yResize) {
+                if (top) {
+                    newH = initH - rotatedHDiff;
+                    if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = initH - minHeight;
+                    }
+                } else {
+                    newH = initH + rotatedHDiff;
+                    if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = minHeight - initH;
+                    }
+                }
+                newX -= 0.5 * rotatedHDiff * sinFraction;
+                newY += 0.5 * rotatedHDiff * cosFraction;
+            }
+
+            // Call resizing and repositioning functions
+            resize(newW, newH);
+            repositionElement(newX, newY);
+const ppi = 96; // Pixels per inch
+            // Update total dimensions dynamically in cm
+          const imageWidthInCM = (overlayImage.width / ppi) * 2.54; // Convert pixels to cm
+      const imageHeightInCM = (overlayImage.height / ppi) * 2.54; // Convert pixels to cm
+            const updatedWidth = overlayImage.width;
+            const updatedHeight = overlayImage.height;
+            const updatedTotalPixels = updatedWidth + updatedHeight;
+            const updatedTotalCM = Math.round(updatedTotalPixels * PIXELS_TO_CM); // Round to nearest cm
+            dimensionsDiv.textContent = `${updatedTotalCM}`;
+          main_image.textContent = `Dimensions: ${imageWidthInCM.toFixed(2)}cm x ${imageHeightInCM.toFixed(2)}cm`;
+          
+        }
+
+        // Add event listeners for mousemove and mouseup
+        window.addEventListener("mousemove", eventMoveHandler, false);
+        window.addEventListener("mouseup", function eventEndHandler() {
+            window.removeEventListener("mousemove", eventMoveHandler, false);
+            window.removeEventListener("mouseup", eventEndHandler);
+        }, false);
+    } else {
+        // Fallback code when overlayImage is not present
+        console.warn("Overlay image not found.");
+        
+        initX = boxWrapper.offsetLeft;
+        initY = boxWrapper.offsetTop;
+        mousePressX = event.clientX;
+        mousePressY = event.clientY;
+
+        initW = box.offsetWidth;
+        initH = box.offsetHeight;
+
+        initRotate = getCurrentRotation(boxWrapper);
+        const initRadians = (initRotate * Math.PI) / 180;
+        const cosFraction = Math.cos(initRadians);
+        const sinFraction = Math.sin(initRadians);
+
+        function eventMoveHandler(event) {
+            const wDiff = event.clientX - mousePressX;
+            const hDiff = event.clientY - mousePressY;
+            const rotatedWDiff = cosFraction * wDiff + sinFraction * hDiff;
+            const rotatedHDiff = cosFraction * hDiff - sinFraction * wDiff;
+
+            let newW = initW, newH = initH, newX = initX, newY = initY;
+
+            if (xResize) {
+                if (left) {
+                    newW = initW - rotatedWDiff;
+                    if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = initW - minWidth;
+                    }
+                } else {
+                    newW = initW + rotatedWDiff;
+                    if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = minWidth - initW;
+                    }
+                }
+                newX += 0.5 * rotatedWDiff * cosFraction;
+                newY += 0.5 * rotatedWDiff * sinFraction;
+            }
+
+            if (yResize) {
+                if (top) {
+                    newH = initH - rotatedHDiff;
+                    if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = initH - minHeight;
+                    }
+                } else {
+                    newH = initH + rotatedHDiff;
+                    if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = minHeight - initH;
+                    }
+                }
+                newX -= 0.5 * rotatedHDiff * sinFraction;
+                newY += 0.5 * rotatedHDiff * cosFraction;
+            }
+
+            resize(newW, newH);
+            repositionElement(newX, newY);
+        }
+
+        window.addEventListener("mousemove", eventMoveHandler, false);
+        window.addEventListener("mouseup", function eventEndHandler() {
+            window.removeEventListener("mousemove", eventMoveHandler, false);
+            window.removeEventListener("mouseup", eventEndHandler);
+        }, false);
+    }
+}
+
+
+
+rightMid.addEventListener('mousedown', e => resizeHandler(e, false, false, true, false));
+leftMid.addEventListener('mousedown', e => resizeHandler(e, true, false, true, false));
+topMid.addEventListener('mousedown', e => resizeHandler(e, false, true, false, true));
+bottomMid.addEventListener('mousedown', e => resizeHandler(e, false, false, false, true));
+leftTop.addEventListener('mousedown', e => resizeHandler(e, true, true, true, true));
+rightTop.addEventListener('mousedown', e => resizeHandler(e, false, true, true, true));
+rightBottom.addEventListener('mousedown', e => resizeHandler(e, false, false, true, true));
+leftBottom.addEventListener('mousedown', e => resizeHandler(e, true, false, true, true));
+
+// handle rotation
+var rotate = document.getElementById("rotate");
+rotate.addEventListener('mousedown', function (event) {
+    // if (event.target.className.indexOf("dot") > -1) {
+    //     return;
+    // }
+
+    initX = this.offsetLeft;
+    initY = this.offsetTop;
+    mousePressX = event.clientX;
+    mousePressY = event.clientY;
+
+
+    var arrow = document.querySelector("#overlay-frame");
+    var arrowRects = arrow.getBoundingClientRect();
+    var arrowX = arrowRects.left + arrowRects.width / 2;
+    var arrowY = arrowRects.top + arrowRects.height / 2;
+
+    function eventMoveHandler(event) {
+        var angle = Math.atan2(event.clientY - arrowY, event.clientX - arrowX) + Math.PI / 2;
+        rotateBox(angle * 180 / Math.PI);
+    }
+
+    window.addEventListener('mousemove', eventMoveHandler, false);
+
+    window.addEventListener('mouseup', function eventEndHandler() {
+        window.removeEventListener('mousemove', eventMoveHandler, false);
+        window.removeEventListener('mouseup', eventEndHandler);
+    }, false);
+}, false);
+
+resize(227,150);
+repositionElement(240, 200);
+
+
+
+
+
+document.querySelector('.close-control').addEventListener('click', function() {
+    document.getElementById('box-wrapper').style.display = 'none';
+   document.getElementById('fileName').textContent = '';
+});
+
+
+
+  
+document.getElementById("customizeBtn").addEventListener("click", function () {
+  const productImage = document.getElementById("product-image");
+  const overlayImage = document.querySelector("#overlay-content img");
+  const overlayText = document.querySelector("#overlay-content .text-overlay");
+
+  // Create a canvas element to merge images
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+
+  // Set canvas dimensions to match the product image
+  canvas.width = productImage.width;
+  canvas.height = productImage.height;
+
+  // Draw the product image onto the canvas
+  context.drawImage(productImage, 0, 0, canvas.width, canvas.height);
+
+  // Draw the overlay image if present
+  if (overlayImage) {
+    const overlayRect = overlayImage.getBoundingClientRect();
+    const productRect = productImage.getBoundingClientRect();
+    
+    // Calculate position of overlay image relative to product image
+    const overlayX = overlayRect.left - productRect.left;
+    const overlayY = overlayRect.top - productRect.top;
+
+    // Draw the overlay image at its displayed size and position on the canvas
+    context.drawImage(
+      overlayImage,
+      overlayX,
+      overlayY,
+      overlayRect.width,
+      overlayRect.height
+    );
+  }
+
+  // Draw overlay text if present
+  if (overlayText) {
+    const textRect = overlayText.getBoundingClientRect();
+    const productRect = productImage.getBoundingClientRect();
+    
+    // Calculate position of overlay text relative to product image
+    const textX = textRect.left - productRect.left + textRect.width / 2;
+    const textY = textRect.top - productRect.top + textRect.height / 2;
+
+    // Get computed styles for text overlay
+    const computedStyle = window.getComputedStyle(overlayText);
+    const fontSize = computedStyle.fontSize || "20px";
+    const fontFamily = computedStyle.fontFamily || "Arial";
+    const fontColor = computedStyle.color || "black";
+    
+    // Apply styles to match the overlay text appearance
+    context.font = `${fontSize} ${fontFamily}`;
+    context.fillStyle = fontColor;
+    context.textAlign = "center";
+    context.textBaseline = "middle"; // Center vertically
+
+    // Draw the text at calculated position
+    context.fillText(overlayText.textContent, textX, textY);
+  }
+
+// Convert canvas to image URL
+const finalImageURL = canvas.toDataURL("image/png");
+
+// Convert the base64 string to a Blob
+var blobBin = atob(finalImageURL.split(',')[1]);
+var array_main = [];
+for (var i = 0; i < blobBin.length; i++) {
+  array_main.push(blobBin.charCodeAt(i));
+}
+var file1 = new Blob([new Uint8Array(array_main)], {type: 'image/png'});
+
+
+
+// Prepare form data based on selected option
+const selectedOption = document.getElementById("customization-option").value;
+const id = {{ product.variants.first.id }}; // Make sure this is valid Liquid code
+const formdata1 = new FormData();
+  const randomId = Math.floor(Math.random() * 1000000);
+var main_qty = document.getElementById('main_qty').innerText;
+
+  var data = {
+    items: [
+      {
+        id: 50294509469962,
+        quantity: main_qty,
+        properties: {
+        mergeid: randomId,
+        totalCm: main_qty
+      }
+      }
+    ]
+  };
+
+const formdata = new FormData();
+if (selectedOption === 'upload') {
+  const finalImagePreview1 = document.querySelector("#overlay-frame img"); // Get the merged image element
+  if (finalImagePreview1) {
+      formdata.append("properties[mergeid]", randomId);
+    formdata.append("properties[Preview image]", file1,"preview.png");
+  
+  }
+} else if (selectedOption === 'text') {
+  const customText = document.getElementById('custom-text').value;
+  if (customText) {
+      formdata.append("properties[mergeid]", randomId);
+    formdata.append("properties[Preview image]", file1,"preview.png");
+    formdata.append("properties[Custom Text]", customText);
+   
+  }
+}
+formdata.append("quantity", 1);
+formdata.append("id", id);
+$.ajax({
+  url: "/cart/add",
+  type: "POST",
+  data: formdata,
+  processData: false,
+  contentType: false,
+   beforeSend: function() {
+          $('.loading__spinner').removeClass('hidden');
+        },
+  success: function(response) {
+    // After successful AJAX call, we use fetch to update the cart.
+    fetch('/cart/add.js', {
+      method: 'POST',
+      body: JSON.stringify(data), // Assuming 'response' contains the correct data for cart addition
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+       $('.loading__spinner').addClass('hidden');
+       window.location.href = '/cart'; // Redirect to the cart page
+      
+    })
+    .catch((error) => {
+      console.error('Error adding to cart:', error);
+    });
+  },
+  error: function(xhr, status, error) {
+    console.error("Error adding to cart:", status, error); // Add error handling for the AJAX call
+  }
+});
+
+
+});
+
+</script>
+<script>
+   
+
+document.getElementById('customize-button').addEventListener('click', function() {
+  document.getElementById('image-upload-popup').style.display = 'block';
+  document.getElementById('box-wrapper').style.display = 'none';
+  $(document).ready(function () {
+    setTimeout(function() {
+      // Initialize slider only if it's not already initialized
+      if (!$('.thumbnail-slider-wrapper').hasClass('slick-initialized')) {
+        $('.thumbnail-slider-wrapper').slick({
+          slidesToShow: 2,
+          slidesToScroll: 1,
+          arrows: true,
+          dots: false,
+          focusOnSelect: true,
+          infinite: false
+        });
+      }
+
+      // Change Main Image on Thumbnail Click
+      $('.thumbnail-slide img').on('click', function () {
+        var largeImage = $(this).data('large');
+        $('#product-image').attr('src', largeImage);
+      });
+    }, 100);
+
+});
+});
+
+document.getElementById('close-popup').addEventListener('click', function() {
+  document.getElementById('image-upload-popup').style.display = 'none';
+  document.getElementById('fileName').textContent = '';
+});
+
+// Toggle fields based on customization option
+document.getElementById('customization-option').addEventListener('change', function() {
+  const option = this.value;
+  document.getElementById('upload-field').style.display = option === 'upload' ? 'block' : 'none';
+  document.getElementById('text-field').style.display = option === 'text' ? 'block' : 'none';
+  document.getElementById('overlay-content').innerHTML = ''; // Clear overlay when switching
+  if (option === 'upload') {
+    document.getElementById('custom-text').value = ''; // Clear text field
+    document.getElementById('text-dimensions').innerHTML = ''; 
+    document.getElementById('main_qty').innerHTML = ''; 
+  } else if (option === 'text') {
+    document.getElementById('image-upload-input').value = ''; // Clear upload field
+    document.getElementById('image-dimensions').innerHTML = ''; 
+    document.getElementById('main_qty').innerHTML = ''; 
+    document.getElementById('fileName').textContent = '';
+  }
+});
+const fileNameDisplay = document.getElementById('fileName');
+// Handle image upload and dimension calculation
+document.getElementById('image-upload-input').addEventListener('change', function(event) {
+  document.getElementById('box-wrapper').style.display = 'block';
+  const file = event.target.files[0];
+  if (file) {
+    fileNameDisplay.textContent = `${file.name}`;
+     fileNameDisplay.style.display = 'block'; // Show file name
+    const img = new Image();
+    img.onload = function() {
+      const overlayContent = document.getElementById('overlay-content');
+      overlayContent.innerHTML = ''; // Clear previous content
+
+      // Ensure image fits within the 5cm x 2.5cm frame
+      const maxWidth = 6; // cm
+      const maxHeight = 2.5; // cm
+      const ppi = 96; // Pixels per inch
+
+      const imageWidthInCM = (img.width / ppi) * 2.54; // Convert pixels to cm
+      const imageHeightInCM = (img.height / ppi) * 2.54; // Convert pixels to cm
+
+      // Calculate dimensions in cm and show
+      // Calculate total dimensions in cm and show
+// Calculate total dimensions in cm and round off
+const totalDimensionsInCM = Math.round(imageWidthInCM + imageHeightInCM);
+// document.getElementById('image-dimensions').textContent = `Total Dimensions: ${totalDimensionsInCM} cm`;
+      document.getElementById('image-dimensions').textContent = `Dimensions: ${imageWidthInCM.toFixed(2)}cm x ${imageHeightInCM.toFixed(2)}cm`;
+document.getElementById('main_qty').textContent = `${totalDimensionsInCM}`;
+
+
+      // Resize image to fit within 5cm x 2.5cm frame if needed
+      const scale = Math.min(maxWidth / imageWidthInCM, maxHeight / imageHeightInCM, 1);
+      img.style.width = '100%';
+      img.style.height = '100%';
+
+      overlayContent.appendChild(img);
+    };
+    img.src = URL.createObjectURL(file);
+  }
+  else {
+      fileNameDisplay.style.display = 'none'; // Hide if no file is selected
+    }
+});
+
+document.getElementById('custom-text').addEventListener('input', function() {
+  document.getElementById('box-wrapper').style.display = 'block';
+  let text = this.value;
+  const overlayContent = document.getElementById('overlay-content');
+  overlayContent.innerHTML = ''; // Clear previous content
+
+  // Estimate text dimensions (simple approximation)
+  const textWidthInCM = text.length * 0.2; // Rough estimate (0.2cm per character)
+  const textHeightInCM = 2.5; // Fixed for simplicity (you can refine based on font size)
+
+  // Prevent overflow without displaying the removed character
+  if (textWidthInCM > 2.4) {
+    text = text.slice(0, -1); // Remove the last character
+    this.value = text; // Update the input field with the adjusted text
+    alert("You've reached the maximum text width.");
+  }
+
+  // Update overlay with the adjusted text
+  const textOverlay = document.createElement('div');
+  textOverlay.className = 'text-overlay';
+  textOverlay.style.width = '5cm';
+  textOverlay.style.height = '2.5cm';
+  textOverlay.textContent = text;
+
+  // Display dimensions rounded off
+const roundedTextWidth = Math.round(textWidthInCM);
+const roundedTextHeight = Math.round(textHeightInCM);
+const totalTextDimensions = roundedTextWidth + roundedTextHeight;
+ document.getElementById('text-dimensions').textContent = `Dimensions: ${textWidthInCM.toFixed(2)}cm x ${textHeightInCM.toFixed(2)}cm`;
+// document.getElementById('text-dimensions').textContent = `Total Dimensions: ${totalTextDimensions}cm`;
+  document.getElementById('main_qty').textContent = `${totalTextDimensions}`;
+
+
+  overlayContent.appendChild(textOverlay);
+});
+</script>
