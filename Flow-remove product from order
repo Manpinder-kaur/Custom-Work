@@ -1,0 +1,169 @@
+function orderEditBegin(orderId, lineItemId) {
+  Logger.log(orderId);
+  const query = `
+    mutation($id: ID!) {
+      orderEditBegin(id: $id) {
+        calculatedOrder {
+          id
+          lineItems(first: 10) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+  const variables = { id: `gid://shopify/Order/${orderId}` };
+  const graphql = JSON.stringify({ query, variables });
+
+  const options = {
+    method: "post",
+    headers: {
+      "X-Shopify-Access-Token": "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",
+      "Content-Type": "application/json",
+    },
+    payload: graphql,
+    muteHttpExceptions: true,
+  };
+
+  const response = UrlFetchApp.fetch("https://mani-testing-store.myshopify.com/admin/api/2024-10/graphql.json", options);
+  const result = JSON.parse(response.getContentText());
+  Logger.log("Begin function"+result);
+
+  if (result?.data?.orderEditBegin?.userErrors?.length) {
+    throw new Error(`Error starting order edit: ${result.data.orderEditBegin.userErrors[0].message}`);
+  }
+
+  const order_id = result?.data?.orderEditBegin?.calculatedOrder?.id;
+  // const line_item_id = result?.data?.orderEditBegin?.calculatedOrder?.lineItems?.edges?.[0]?.node?.id;
+
+  if (!order_id) {
+    throw new Error("Order or line item ID not found.");
+  }
+
+  orderEditSetQty(order_id, lineItemId);
+}
+
+
+function orderEditSetQty(calculatedOrderId, calculatedLineItemId) {
+  var line_item_final = calculatedLineItemId;
+ line_item_final = line_item_final.replace("gid://shopify/LineItem/", "gid://shopify/CalculatedLineItem/");
+  Logger.log("line_item_final"+line_item_final);
+  const query = `
+    mutation {
+      orderEditSetQuantity(
+        id: "${calculatedOrderId}",
+        lineItemId: "${line_item_final}",
+        quantity: 0,
+        restock: true
+      ) {
+        calculatedLineItem {
+          id
+          title
+          quantity
+        }
+        calculatedOrder {
+          subtotalPriceSet {
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+          }
+          totalPriceSet {
+            presentmentMoney {
+              amount
+              currencyCode
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+  const graphql = JSON.stringify({ query });
+
+  const options = {
+    method: "post",
+    headers: {
+      "X-Shopify-Access-Token": "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",
+      "Content-Type": "application/json",
+    },
+    payload: graphql,
+    muteHttpExceptions: true,
+  };
+
+  const response = UrlFetchApp.fetch("https://mani-testing-store.myshopify.com/admin/api/unstable/graphql.json", options);
+  const result = JSON.parse(response.getContentText());
+  Logger.log(result);
+  
+  if(result) {
+    orderEditCommit(calculatedOrderId);
+  }
+}
+
+function orderEditCommit(calculatedOrderId) {
+
+    Logger.log("commit"+calculatedOrderId);
+  const query = `
+    mutation {
+      orderEditCommit(id: "${calculatedOrderId}") {
+        order {
+          id
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+  const graphql = JSON.stringify({ query });
+
+  const options = {
+    method: "post",
+    headers: {
+      "X-Shopify-Access-Token": "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",
+      "Content-Type": "application/json",
+    },
+    payload: graphql,
+    muteHttpExceptions: true,
+  };
+
+  const response = UrlFetchApp.fetch("https://mani-testing-store.myshopify.com/admin/api/unstable/graphql.json", options);
+  const result = JSON.parse(response.getContentText());
+ // Logger.log("commit function" + result);
+}
+
+function doGet(e) {
+  Logger.log(e);
+  const action = e.parameter.action;
+  const orderId = e.parameter.orderId;
+  const lineItemId = e.parameter.lineItemId;
+
+  try {
+    let result;
+
+    if (action === "begin") {
+      if (!orderId) throw new Error("Missing orderId parameter.");
+      result = orderEditBegin(orderId, lineItemId);
+    } else {
+      throw new Error("Invalid action parameter.");
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ success: true, data: result }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
