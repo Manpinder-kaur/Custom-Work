@@ -1,0 +1,89 @@
+<div class="puraluxe-certificate common-certificate" id="certificate-box">
+    <div class="puraluxe-cerificate-inner" style="max-width: 100%;">
+      <div class="puraluxe-certificate-main">
+      <div class="puraluxe-logo">
+        <div class="puraluxe-logo-inner">
+          <img src="https://cdn.shopify.com/s/files/1/0672/4576/8997/files/PuraLuxe_logo_professional_black_copy.png?v=1669274176">
+        </div>
+      </div>
+
+      <div class="certificate-main-area">
+        <div class="certificate-inner-area">
+          
+          <div class="heading"><h1>CERTIFIED STYLIST</h1></div>
+          <div class="certificate-content"><p>Certificate is Presented to</p></div>
+          <div class="participant-name"><h1>Mani Setia</h1></div>
+          <div class="extra-content">
+            <p>For successfully completing the Pura Luxe Certification Process</p>
+          </div>
+        <div class="certificate-date" data-certificate="2024-03-16">
+        <p class="date-field">16 March, 2024</p>
+        <p class="date-text">Date</p>
+        </div>
+          <div class="stylist-sign">
+            <img src="https://cdn.shopify.com/s/files/1/0672/4576/8997/files/transparent-certificate-sign.png?v=1673360482">
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+  
+<button class="download">Download Certificate</button>
+<script>
+document.querySelector('.download-certificate button').addEventListener('click', function () {
+  // Select the content to convert
+  const element = document.querySelector('.puraluxe-cerificate-inner');
+  const certificate = document.querySelector('.puraluxe-certificate');
+  
+  // hide the certificate
+  $(certificate).hide();
+
+  // Ensure the element exists
+  if (element) { 
+    // Apply styles to the element for PDF rendering
+    element.style.width = '100%'; 
+    element.style.maxWidth = '100%';
+    // Add styles dynamically to the specified elements
+    const dateField = document.querySelector('.date-field');
+    const dateText = document.querySelector('.date-text');
+
+    if (dateField) {
+      dateField.style.maxWidth = '300px';
+      dateField.style.width = '100%';
+      dateField.style.margin = '40px auto 6px';
+      dateField.style.borderBottom = '2px solid rgba(0, 0, 0, .3)';
+      dateField.style.fontWeight = '500';
+    }
+
+    if (dateText) {
+      dateText.style.fontWeight = '500';
+    }
+
+    // Configure html2pdf options
+    const options = {
+      margin: 0, 
+      filename: 'certificate.pdf',
+      html2canvas: {
+        scale: 2, 
+        useCORS: true,
+      },
+      jsPDF: {
+        orientation: 'landscape',
+      }
+    };
+
+    // Generate and download the PDF
+    html2pdf()
+      .set(options)
+      .from(element)
+      .save()
+      .then(() => {
+        // Reset styles and show the certificate after download
+        element.style.removeProperty('width');
+        element.style.removeProperty('maxWidth');
+        $(certificate).show();
+      });
+  }
+});
+</script>
