@@ -1,0 +1,543 @@
+<style>
+    #chat-box {
+        margin: 30px auto;
+        bottom: 20px;
+        right: 20px;
+        width: 60%;
+        height: 100%;
+        border-radius: 25px;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        justify-content: flex-end;
+    }
+    #chat-header {
+        background: #4CAF50;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 5px 5px 0 0;
+    }
+    #chat-body {
+        overflow-y: auto;
+        padding: 10px;
+    }
+#chat-input {
+    width: 100%;
+    padding: 8px 15px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 25px;
+}
+#chat-send {
+    width: 100%;
+    padding: 20px;
+    background: #000000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 5px;
+    border-radius: 25px;
+}
+  .wrap_imput_btn {
+    display: flex;
+    gap: 20px;
+}
+.message-text.user {
+    display: flex;
+    justify-content: flex-end;
+}
+  .message-text.bot {
+    display: flex;
+    justify-content: flex-start;
+    width: 80%;
+}
+  .user_wrap, .bot_wrap {
+    background: white;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    width: fit-content;
+    border-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
+}
+  .message-text.product .bot_wrap strong {
+    font-size: 20px;
+    text-align: left;
+    display: inline-block;
+    width: 100%;
+    padding: 10px 0 10px 0;
+    text-transform: uppercase;
+    color: #000;
+}
+ .product_wrap {
+    display: flex;
+    gap: 19px;
+    overflow: auto;
+    width: 98%;
+   scrollbar-width: thin;
+}
+  #chat-input :focus-visible {
+    outline: none !important;
+}
+.reco-product {
+    width: 25%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    min-width: 25%;
+}
+  #chat-input:focus-visible {
+    outline: none !important;
+    box-shadow: none;
+}
+.reco-product a {
+    line-height: 1.3;
+    font-size: 14px;
+    text-align: left;
+    color: #000;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+  .message-text.product .bot_wrap{
+    padding: 25px;
+}
+.wrap_imput_btn {
+    width: 100%;
+    height: 70px;
+    padding: 5px 10px 10px 10px;
+    border-radius: 5000px;
+    animation: 3s linear 0s infinite normal none running small-ripples-rich;
+    resize: none;
+    background: rgba(35, 35, 35, 0.9);
+    overflow: hidden;
+    color: white;
+}
+  @keyframes small-ripples-rich {
+    0% {
+        box-shadow: 0 0 #2e302c4d,0 0 0 4px #2e302c4d,0 0 0 8px #2e302c4d;
+    }
+
+    to {
+        box-shadow: 0 0 0 4px #2e302c4d,0 0 0 8px #2e302c4d,0 0 0 16px #2e302c00;
+    }
+}
+  .heading-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+  .heading-wrap h2 {
+    margin: 0;
+    font-size: 40px;
+}
+  #logo-container {
+    position: relative;
+
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    transition: all 1s ease-out;
+}
+#logo-over.shrink {
+    width: 20px;
+ position: absolute;
+z-order:1;
+}
+#logo {
+   width: 400px; /* Initial size of the logo */
+    animation: rotateLogo 20s linear infinite; /* Continuous rotation */
+    transition: all 1s ease-out;
+    position: absolute;
+}
+#logo-over {
+   width: 200px; /* Initial size of the logo */
+    position: absolute;
+z-order:1;
+transition: all 1s ease-out;
+}
+#logo-opposite {
+    width: 400px; /* Initial size of the logo */
+    animation: rotateLogoOpposite 20s linear infinite; /* Continuous rotation */
+    transition: all 1s ease-out;
+    position: absolute;
+}
+
+@keyframes rotateLogo {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes rotateLogoOpposite {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(-360deg); /* Opposite rotation */
+    }
+}
+
+/* Shrink the logo and move to the parent-defined center */
+#logo-container.shrink {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative;
+    margin-bottom:30px !important;
+  margin-top:30px !important;
+}
+
+#logo.shrink {
+    width: 50px;
+    position: absolute;
+}
+#logo-opposite.shrink {
+    width: 50px;
+    position: relative;
+}
+
+.all-hide {
+    display: none;
+}
+        .container-loader {
+            display: grid;
+            grid-template-columns: repeat(3, 10px);
+            gap: 10px;
+            justify-content: start;
+            align-items: center;
+        }
+
+        .ball {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: wave 1.5s ease-in-out infinite;
+          background-color:#37bf57;
+        }
+
+        .ball:nth-child(2) {
+            animation-delay: -0.2s;
+            background-color:#49caa1;
+        }
+
+        .ball:nth-child(3) {
+            animation-delay: -0.4s;
+          background-color:#12aab4;
+        }
+
+
+
+        @keyframes wave {
+            0%, 100% {
+                transform: translateY(3px);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+        /* Slide-up fade animation */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+  .container-loader .ball{
+    display:block;
+  }
+  .message-text.bot.form-klaviyo + .message-text.user {
+    display: none;
+}
+</style>
+<div id="logo-container" >
+    <img id="logo" src="https://cdn.shopify.com/s/files/1/0691/2799/5637/files/Vector-3-1.png?v=1734239264" alt="Logo">
+    <img id="logo-opposite" src="https://cdn.shopify.com/s/files/1/0691/2799/5637/files/Vector-3-1.png?v=1734239264" alt="Logo Opposite">
+    <p id="logo-over" alt="Logo Over"></p>
+</div>
+
+<div class="heading-wrap" id="heading-wrap">
+<h2>
+  Hi, I'm the AI chatbot
+</h2>
+<p>
+Ask me anything about perfumes, fragrances, and everything scent-related!
+</p>
+</div>
+<div id="chat-box" class="chat-box" style="">
+  <!-- <div id="chat-header">💬 Ask About Perfumes</div> -->
+    <div id="chat-body"></div>
+  <div class="wrap_imput_btn">
+    <input type="text" id="chat-input" placeholder="Ask about perfumes..." style="width: 80%;">
+    <button id="chat-send" style="width: 20%;">Send</button>
+  </div>
+</div>
+{% comment %}
+  
+{% paginate collections.all.products by 50 %}
+  {% for product in collections.all.products %}
+   <p> {{ product.title }}</p><br>
+  {% endfor %}
+{% endpaginate %}
+{% endcomment %}
+
+<div id="product-data" style="display: none;">
+{% paginate collections['perfume'].products by 50 %}
+  {% for product in collections['perfume'].products %}
+    {{ product.title }}
+  {% endfor %}
+{% endpaginate %}
+
+
+
+  
+    {% for product in collections['perfume'].products %}
+        {% if product.available %}
+            <div class="product-item"
+                data-id="{{ product.variants.first.id }}"
+                data-title="{{ product.title }}"
+                data-handle="{{ product.handle }}"
+                data-image="{{ product.featured_image | img_url: 'medium' }}"
+                data-price="{{ product.variants.first.price | money_with_currency }}"
+                data-notes="{% for block in product.metafields.custom.notes.value.children %}{% for child in block.children %}{{ child.value }}{% unless forloop.last %}, {% endunless %}{% endfor %}{% unless forloop.last %}, {% endunless %}{% endfor %}">
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chatInput = document.getElementById("chat-input");
+    const chatSend = document.getElementById("chat-send");
+    const chatBody = document.getElementById("chat-body");
+
+    function getInStockPerfumes() {
+        return Array.from(document.querySelectorAll("#product-data .product-item")).map(item => ({
+            id: item.getAttribute("data-id"),
+            title: item.getAttribute("data-title"),
+            handle: item.getAttribute("data-handle"),
+            image: item.getAttribute("data-image"),
+            price: item.getAttribute("data-price"),
+            description: item.getAttribute("data-notes")
+        }));
+    }
+
+    function filterPerfumes(perfumes, query) {
+        const stopWords = ["i", "want", "need", "a", "an", "the", "for", "to", "with", "of", "is", "in", "show", "me"];
+        const words = query.toLowerCase().split(/\s+/).filter(word => !stopWords.includes(word));
+
+        return perfumes.filter(p => 
+            words.length > 0 && words.some(word => 
+                p.title.toLowerCase().includes(word) || 
+                p.description.toLowerCase().includes(word)
+            )
+        );
+    }
+
+    function handleCasualResponse(userQuery) {
+        const casualGreetings = ["hello", "hi", "hey"];
+        return casualGreetings.some(greeting => userQuery.toLowerCase().includes(greeting));
+    }
+
+    const divToHide = document.getElementById('heading-wrap');                                           
+    const logoToHide = document.getElementById('logo-container');
+
+    async function getChatResponse() {
+        divToHide.style.display = 'none'; 
+        logoToHide.style.display = 'none';
+
+let userQuery = chatInput.value.trim();
+
+    if (userQuery) {
+        localStorage.setItem('latestUserQuery', userQuery);
+    } else {
+        userQuery = localStorage.getItem('latestUserQuery');
+    }
+        if (!userQuery) return;
+
+        chatBody.innerHTML += `<div class="message-text user"><div class="user_wrap"><strong>You:</strong> ${userQuery}</div></div>`;
+        chatInput.value = "";
+
+        const loader = document.createElement("div");
+        loader.className = "bot_wrap ";
+        loader.innerHTML = `
+            <div class="container-loader">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+            </div>
+        `;
+        chatBody.appendChild(loader);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        try {
+            if (handleCasualResponse(userQuery)) {
+                setTimeout(() => {
+                    loader.remove();
+                    chatBody.innerHTML += `<div class="message-text bot"><div class="bot_wrap"><strong>ChatGPT:</strong> Hello! 😊 How can I help you today? Feel free to ask for perfume recommendations!</div></div>`;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 2000);
+                return;
+            }
+
+            let userEmail = localStorage.getItem("user_email");
+            if (!userEmail) {
+                loader.remove();
+                chatBody.innerHTML += `
+                    <div class="message-text bot form-klaviyo">
+                        <div class="bot_wrap">
+                            <strong>ChatGPT:</strong> Before I recommend products, can I have your email? 😊
+                            <br>
+<form id="subscription-form" action="https://manage.kmail-lists.com/subscriptions/subscribe" method="POST>
+    <input type="hidden" name="g" value="VA9hJz">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <button type="submit">Subscribe</button>
+</form>
+
+<iframe name="hidden-iframe" style="display:none;"></iframe>
+                        </div>
+                    </div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+
+document.getElementById("subscription-form").addEventListener("submit", function(event) {
+    var email = document.getElementById('email').value;
+    
+    // Check if the email is entered before submitting
+    if (!email) {
+        alert('Please enter a valid email.');
+        return;
+    }
+
+    // Store email in localStorage before submitting
+    localStorage.setItem("user_email", email);
+    
+    // Remove preventDefault to allow form submission
+    setTimeout(() => {
+        alert('Thank you for subscribing!');
+        getChatResponse();
+    }, 1000);
+});
+                return;
+            }
+
+            const perfumes = getInStockPerfumes();
+            const filteredPerfumes = filterPerfumes(perfumes, userQuery);
+
+            const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "gpt-4",
+                    messages: [
+                        { role: "system", content: "You are a perfume expert. Give short, precise recommendations based on user queries." },
+                        { role: "user", content: `User query: ${userQuery}. Available perfumes:
+                        ${perfumes.map(p => `${p.title}: ${p.description}, Price: ${p.price}`).join("\n")}` }
+                    ],
+                    max_tokens: 100 
+                })
+            });
+
+            let chatReply = (await chatResponse.json()).choices[0].message.content;
+            loader.remove();
+
+            if (filteredPerfumes.length > 0) {
+                chatReply += "<br><br><strong>Recommended Perfumes:</strong><br>";
+                chatReply += "<div class='product_wrap'>";
+                filteredPerfumes.forEach(p => {
+                    chatReply += `
+                        <div class="reco-product" style="border: 1px solid #ddd; padding: 10px; margin-top: 5px; border-radius: 5px;">
+                            <img src="${p.image}" alt="${p.title}" style="width:80px; height:auto; border-radius:5px;">
+                            <br>
+                            <a href="/products/${p.handle}" target="_blank">${p.title}</a>
+                            Price: ${p.price}
+                        </div>
+                    `;
+                });
+                chatReply += "</div>";
+            }
+
+            chatBody.innerHTML += `<div class="message-text product bot"><div class="bot_wrap"><strong>ChatGPT:</strong> ${chatReply}</div></div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        } catch (error) {
+            loader.remove();
+            chatBody.innerHTML += `<div style="color: red;">Error getting response!</div>`;
+        }
+    }
+
+    async function sendEmailToKlaviyo(email) {
+        var _learnq = window._learnq || [];
+        window._learnq = _learnq;
+        _learnq.push(["identify", { email: email }]);
+        alert('Thank you for subscribing!');
+    }
+
+    chatSend.addEventListener("click", getChatResponse);
+    chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") getChatResponse();
+    });
+});
+
+
+ document.addEventListener("DOMContentLoaded", function () {
+    const logoContainer = document.getElementById("logo-container");
+    const logo = document.getElementById("logo");
+    const logoover = document.getElementById("logo-over");
+    const logoOpposite = document.getElementById("logo-opposite");
+
+    // Initially hide elements with the 'all-hide' class
+    const hiddenElements = document.querySelectorAll('.chat-box, .heading-wrap');
+    hiddenElements.forEach(element => {
+        element.style.display = 'none'; // Hide all elements with 'all-hide' class
+    });
+
+    // Delay the shrink animation to allow the rotation to complete
+    setTimeout(() => {
+        // Hide the divs with 'all-hide' class
+        hiddenElements.forEach(element => {
+            element.style.display = 'flex'; // Make sure they stay hidden during the animation
+        });
+
+        // Apply the 'shrink' class after rotation
+        logoContainer.classList.add("shrink");
+        logo.classList.add("shrink");
+      logoover.classList.add("shrink");
+        logoOpposite.classList.add("shrink");
+    }, 2000); // Match the duration of the rotation animation
+});
+</script>
+
+
+
+{% schema %}
+{
+  "name": "ChatGPT Section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "ChatGPT Integration"
+    }
+  ]
+}
+{% endschema %}
