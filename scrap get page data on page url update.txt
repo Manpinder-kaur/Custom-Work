@@ -1,0 +1,106 @@
+// Get and log the initial URL
+let lastUrl = location.href;
+console.log("Initial URL:", lastUrl);
+
+// Observe URL changes dynamically
+const observer = new MutationObserver(() => {
+    let currentUrl = location.href;
+    if (currentUrl !== lastUrl) {
+        lastUrl = currentUrl;
+        console.log("URL changed to:", currentUrl);
+        fetchData(currentUrl); // Fetch data when the URL changes
+    }
+});
+observer.observe(document.body, { subtree: true, childList: true });
+
+console.log("URL observer set up!");
+
+// Create a "Download CSV" button
+const downloadButton = document.createElement("button");
+downloadButton.textContent = "Download CSV (0)";
+downloadButton.style.position = "fixed";
+downloadButton.style.bottom = "20px";
+downloadButton.style.right = "20px";
+downloadButton.style.padding = "10px 15px";
+downloadButton.style.background = "#007bff";
+downloadButton.style.color = "#fff";
+downloadButton.style.border = "none";
+downloadButton.style.borderRadius = "5px";
+downloadButton.style.cursor = "pointer";
+document.body.appendChild(downloadButton);
+
+// Store all products
+let allProducts = [];
+
+// Function to update the button text with product count
+function updateButtonText() {
+    downloadButton.textContent = `Download CSV (${allProducts.length})`;
+}
+
+// Function to fetch and process product data
+function fetchData(url) {
+    console.log("Fetching data from:", url);
+    
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let products = [];
+
+            let productElements = doc.querySelectorAll('.js-listing-wrapper .cms-listing-col');
+            console.log("Total products found on this page:", productElements.length);
+
+            productElements.forEach(item => {
+                let nameElement = item.querySelector('.product-name');
+                let priceElement = item.querySelector('.product-detail-price');
+                let urlElement = item.querySelector('.product-image-link');
+
+                let name = nameElement ? nameElement.textContent.trim() : 'N/A';
+                let rawPrice = priceElement ? priceElement.textContent.trim() : 'N/A';
+                let price = rawPrice.replace(/[^0-9,.]/g, ''); // Keep only numbers, dots, commas
+                let productUrl = urlElement ? urlElement.href : 'N/A';
+
+                console.log("Product:", { name, price, productUrl });
+
+                products.push({ name, price, productUrl });
+            });
+
+            if (products.length === 0) {
+                console.error("No products extracted. Check selectors.");
+                return;
+            }
+
+            // Add new products to the global list
+            allProducts = allProducts.concat(products);
+
+            // Update the button text with the new product count
+            updateButtonText();
+
+            console.log("Data added. Click the button to download.");
+        })
+        .catch(error => console.error("Error fetching data:", error));
+}
+
+// Add click event to button to download CSV
+downloadButton.addEventListener("click", () => {
+    if (allProducts.length === 0) {
+        alert("No data available. Please wait for products to load.");
+        return;
+    }
+
+    let csvContent = "Product URL\n" + 
+        allProducts.map(p => `"${p.productUrl}"`).join("\n");
+
+    let blob = new Blob([csvContent], { type: "text/csv" });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "products.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+// Fetch data immediately on script load
+fetchData(lastUrl);

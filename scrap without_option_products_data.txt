@@ -1,0 +1,297 @@
+// Create a file input element dynamically
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.id = "fileInput";
+fileInput.style.position = "fixed";
+fileInput.style.bottom = "20px";
+fileInput.style.right = "20px";
+fileInput.style.zIndex = "1000";
+document.body.appendChild(fileInput);
+
+fileInput.addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  if (file && file.type === "text/csv") {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const csvContent = e.target.result;
+      parseCSV(csvContent);
+    };
+    reader.readAsText(file);
+  }
+});
+
+function parseCSV(csvContent) {
+  const lines = csvContent.split("\n").map(line => line.trim()).filter(Boolean);
+  const headers = lines.shift().split(",");
+  const ridesData = lines.map(line => {
+    const values = line.split(",");
+    return Object.fromEntries(headers.map((header, i) => [header, values[i]]));
+  });
+
+  console.log("Parsed CSV Data:", ridesData);
+  loopProducts(ridesData, 0, []);
+}
+
+function loopProducts(ridesData, index, collectedData) {
+  if (index < ridesData.length) {
+    const currentProduct = ridesData[index];
+    fetchData(currentProduct["Product URL"], ridesData, index, collectedData);
+  } else {
+    saveCSV(collectedData);
+  }
+}
+
+async function fetchData(url, ridesData, index, collectedData) {
+  console.log(`Fetching data from (${index + 1}):`, url);
+
+  try {
+    const response = await fetch(url);
+    const html = await response.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const docsrc = new DOMParser().parseFromString(html, "text/html");  
+    const scriptTags = docsrc.querySelectorAll("script");
+
+    let ga4ProductData = null;
+
+    scriptTags.forEach((script) => {
+      if (script.textContent.includes("window.ga4Product")) {
+        try {
+          eval(script.textContent);
+          ga4ProductData = window.ga4Product;
+          console.log("Extracted ga4Product data:", ga4ProductData);
+        } catch (error) {
+          console.error("Error executing script:", error);
+        }
+      }
+    });
+
+    if (!ga4ProductData) console.log("No ga4Product data found.");
+    const cleanText = (element) => element ? element.textContent.trim().replace(/\s+/g, ' ') : " ";
+
+    const productTitle = cleanText(doc.querySelector(".fts-productName"));
+    const productVendor = cleanText(doc.querySelector(".fts-manufacturerName"));
+    
+    const productPriceElement = doc.querySelector(".product-detail-price");
+    const productPrice = productPriceElement 
+      ? productPriceElement.textContent.replace(/[^0-9,.]/g, '').trim() || " "
+      : " ";
+
+    const productSKUElement = doc.querySelector(".fts-productNumber");
+    const productSKU = productSKUElement 
+      ? productSKUElement.textContent.replace("SKU: ", "").trim().replace(/\s+/g, ' ') 
+      : " ";
+    
+    const productDescriptionHTML = doc.querySelector(".data-more-button span")?.textContent.trim().replace(/"/g, '') || " ";
+    const productImage = doc.querySelector(".cms-element-image-gallery img")?.src || " ";
+    let matchedGA4Data = ga4ProductData ? Object.values(ga4ProductData)[0] : null;
+
+const productOptions1 = [...doc.querySelectorAll(".product-detail-configurator-group[data-configurator-step='1'] .product-detail-configurator-option label")]
+    .map(option => cleanText(option));
+const productOptionsTitle1 = cleanText(doc.querySelector(".product-detail-configurator-group[data-configurator-step='1'] .product-detail-configurator-group-title"));
+
+const productOptions2 = [...doc.querySelectorAll(".product-detail-configurator-group[data-configurator-step='2'] .product-detail-configurator-option label")]
+    .map(option => cleanText(option));
+const productOptionsTitle2 = cleanText(doc.querySelector(".product-detail-configurator-group[data-configurator-step='2'] .product-detail-configurator-group-title"));
+
+const productOptions3 = [...doc.querySelectorAll(".product-detail-configurator-group[data-configurator-step='3'] .product-detail-configurator-option label")]
+    .map(option => cleanText(option));
+const productOptionsTitle3 = cleanText(doc.querySelector(".product-detail-configurator-group[data-configurator-step='3'] .product-detail-configurator-group-title"));
+
+const maxOptions = Math.max(productOptions1.length, productOptions2.length, productOptions3.length);
+if (maxOptions > 0) {
+for (let i = 0; i < maxOptions; i++) {
+    collectedData.push({
+    Handle: matchedGA4Data?.item_id || productSKU,
+    Title: matchedGA4Data?.item_name || productTitle,
+    "Body (HTML)": productDescriptionHTML, // Ensure it's enclosed in quotes for CSV
+    "Vendor":" ",
+    "Product Category": matchedGA4Data?.item_brand || productVendor,
+    Type: " ",
+    Tags:  [
+      matchedGA4Data?.item_category,
+      matchedGA4Data?.item_category1,
+      matchedGA4Data?.item_category2,
+      matchedGA4Data?.item_category3,
+      matchedGA4Data?.item_category4,
+      matchedGA4Data?.item_category5
+    ].filter(Boolean).join(', '),
+    Published: " ",
+    "Option1 Name": productOptionsTitle1,
+    "Option1 Value": productOptions1[i] || " ",
+    "Option1 Linked To": " ",
+    "Option2 Name": productOptionsTitle2,
+    "Option2 Value": productOptions2[i] || " ",
+    "Option2 Linked To": " ",
+    "Option3 Name": productOptionsTitle3,
+    "Option3 Value": productOptions3[i] || " ",
+    "Option3 Linked To": " ",
+    "Variant SKU": matchedGA4Data?.item_id || productSKU,
+    "Variant Grams": " ",
+    "Variant Inventory Tracker": "shopify",
+    "Variant Inventory Qty": "0",
+    "Variant Inventory Policy": "deny",
+    "Variant Fulfillment Service": "manual",
+    "Variant Price": matchedGA4Data?.extra?.realPrice > 0 ? matchedGA4Data.extra.realPrice : productPrice,
+    "Variant Compare At Price": " ",
+    "Variant Requires Shipping": " ",
+    "Variant Taxable": " ",
+    "Variant Barcode": " ",
+    "Image Src": productImage,
+    "Image Position": "1",
+    "Image Alt Text": " ",
+    "Gift Card": " ",
+    "SEO Title": " ",
+    "SEO Description": " ",
+    "Google Shopping / Google Product Category": " ",
+    "Google Shopping / Gender": " ",
+    "Google Shopping / Age Group": " ",
+    "Google Shopping / MPN": " ",
+    "Google Shopping / Condition": " ",
+    "Google Shopping / Custom Product": " ",
+    "Google Shopping / Custom Label 0": " ",
+    "Google Shopping / Custom Label 1": " ",
+    "Google Shopping / Custom Label 2": " ",
+    "Google Shopping / Custom Label 3": " ",
+    "Google Shopping / Custom Label 4": " ",
+    "Upsell Discount (product.metafields.app--34646425601--orderediting.editing_sales_channel_discount_percentage)": " ",
+    "Battery (product.metafields.custom.battery)": " ",
+    "Composition (product.metafields.custom.composition)": " ",
+    "Features OLD (product.metafields.custom.features)": " ",
+    "Final Email Header (product.metafields.custom.final_email_header)": " ",
+    "Hero Section (product.metafields.custom.hero_section)": " ",
+    "Product Quiz (product.metafields.custom.product_quiz)": " ",
+    "tes1 (product.metafields.custom.tes1)": " ",
+    "Google: Custom Product (product.metafields.mm-google-shopping.custom_product)": " ",
+    "Age group (product.metafields.shopify.age-group)": " ",
+    "Color (product.metafields.shopify.color-pattern)": " ",
+    "Material (product.metafields.shopify.material)": " ",
+    "Target gender (product.metafields.shopify.target-gender)": " ",
+    "Complementary products (product.metafields.shopify--discovery--product_recommendation.complementary_products)": " ",
+    "Related products (product.metafields.shopify--discovery--product_recommendation.related_products)": " ",
+    "Related products settings (product.metafields.shopify--discovery--product_recommendation.related_products_display)": " ",
+    "Search product boosts (product.metafields.shopify--discovery--product_search_boost.queries)": " ",
+    "Variant Image": " ",
+    "Variant Weight Unit": " ",
+    "Variant Tax Code": " ",
+    "Cost per item": " ",
+    "Included / India": " ",
+    "Price / India": " ",
+    "Compare At Price / India": " ",
+    "Included / norway": " ",
+    "Price / norway": " ",
+    "Compare At Price / norway": " ",
+    "Status": "draft",
+        });
+}
+} else{
+collectedData.push({
+    Handle: matchedGA4Data?.item_id || productSKU,
+    Title: matchedGA4Data?.item_name || productTitle,
+    "Body (HTML)": productDescriptionHTML, // Ensure it's enclosed in quotes for CSV
+    "Vendor":" ",
+    "Product Category": matchedGA4Data?.item_brand || productVendor,
+    Type: " ",
+    Tags:  [
+      matchedGA4Data?.item_category,
+      matchedGA4Data?.item_category1,
+      matchedGA4Data?.item_category2,
+      matchedGA4Data?.item_category3,
+      matchedGA4Data?.item_category4,
+      matchedGA4Data?.item_category5
+    ].filter(Boolean).join(', '),
+    Published: " ",
+    "Option1 Name": " ",
+    "Option1 Value": " ",
+    "Option1 Linked To": " ",
+    "Option2 Name": " ",
+    "Option2 Value": "",
+    "Option2 Linked To": " ",
+    "Option3 Name": " ",
+    "Option3 Value": " ",
+    "Option3 Linked To": " ",
+    "Variant SKU": matchedGA4Data?.item_id || productSKU,
+    "Variant Grams": " ",
+    "Variant Inventory Tracker": "shopify",
+    "Variant Inventory Qty": "0",
+    "Variant Inventory Policy": "deny",
+    "Variant Fulfillment Service": "manual",
+    "Variant Price": matchedGA4Data?.extra?.realPrice > 0 ? matchedGA4Data.extra.realPrice : productPrice,
+    "Variant Compare At Price": " ",
+    "Variant Requires Shipping": " ",
+    "Variant Taxable": " ",
+    "Variant Barcode": " ",
+    "Image Src": productImage,
+    "Image Position": "1",
+    "Image Alt Text": " ",
+    "Gift Card": " ",
+    "SEO Title": " ",
+    "SEO Description": " ",
+    "Google Shopping / Google Product Category": " ",
+    "Google Shopping / Gender": " ",
+    "Google Shopping / Age Group": " ",
+    "Google Shopping / MPN": " ",
+    "Google Shopping / Condition": " ",
+    "Google Shopping / Custom Product": " ",
+    "Google Shopping / Custom Label 0": " ",
+    "Google Shopping / Custom Label 1": " ",
+    "Google Shopping / Custom Label 2": " ",
+    "Google Shopping / Custom Label 3": " ",
+    "Google Shopping / Custom Label 4": " ",
+    "Upsell Discount (product.metafields.app--34646425601--orderediting.editing_sales_channel_discount_percentage)": " ",
+    "Battery (product.metafields.custom.battery)": " ",
+    "Composition (product.metafields.custom.composition)": " ",
+    "Features OLD (product.metafields.custom.features)": " ",
+    "Final Email Header (product.metafields.custom.final_email_header)": " ",
+    "Hero Section (product.metafields.custom.hero_section)": " ",
+    "Product Quiz (product.metafields.custom.product_quiz)": " ",
+    "tes1 (product.metafields.custom.tes1)": " ",
+    "Google: Custom Product (product.metafields.mm-google-shopping.custom_product)": " ",
+    "Age group (product.metafields.shopify.age-group)": " ",
+    "Color (product.metafields.shopify.color-pattern)": " ",
+    "Material (product.metafields.shopify.material)": " ",
+    "Target gender (product.metafields.shopify.target-gender)": " ",
+    "Complementary products (product.metafields.shopify--discovery--product_recommendation.complementary_products)": " ",
+    "Related products (product.metafields.shopify--discovery--product_recommendation.related_products)": " ",
+    "Related products settings (product.metafields.shopify--discovery--product_recommendation.related_products_display)": " ",
+    "Search product boosts (product.metafields.shopify--discovery--product_search_boost.queries)": " ",
+    "Variant Image": " ",
+    "Variant Weight Unit": " ",
+    "Variant Tax Code": " ",
+    "Cost per item": " ",
+    "Included / India": " ",
+    "Price / India": " ",
+    "Compare At Price / India": " ",
+    "Included / norway": " ",
+    "Price / norway": " ",
+    "Compare At Price / norway": " ",
+    "Status": "draft",
+      });
+}
+
+    loopProducts(ridesData, index + 1, collectedData);
+  } catch (error) {
+    console.error(`❌ Error fetching URL (${index + 1}):`, error);
+    loopProducts(ridesData, index + 1, collectedData);
+  }
+}
+
+function saveCSV(data) {
+  const csvContent = [
+    "Handle,Title,Body (HTML),Vendor,Product Category,Type,Tags,Published,Option1 Name,Option1 Value,Option1 Linked To,Option2 Name,Option2 Value,Option2 Linked To,Option3 Name,Option3 Value,Option3 Linked To,Variant SKU,Variant Grams,Variant Inventory Tracker,Variant Inventory Qty,Variant Inventory Policy,Variant Fulfillment Service,Variant Price,Variant Compare At Price,Variant Requires Shipping,Variant Taxable,Variant Barcode,Image Src,Image Position,Image Alt Text,Gift Card,SEO Title,SEO Description,Google Shopping / Google Product Category,Google Shopping / Gender,Google Shopping / Age Group,Google Shopping / MPN,Google Shopping / Condition,Google Shopping / Custom Product,Google Shopping / Custom Label 0,Google Shopping / Custom Label 1,Google Shopping / Custom Label 2,Google Shopping / Custom Label 3,Google Shopping / Custom Label 4,Upsell Discount (product.metafields.app--34646425601--orderediting.editing_sales_channel_discount_percentage),Battery (product.metafields.custom.battery),Composition (product.metafields.custom.composition),Features OLD (product.metafields.custom.features),Final Email Header (product.metafields.custom.final_email_header),Hero Section (product.metafields.custom.hero_section),Product Quiz (product.metafields.custom.product_quiz),tes1 (product.metafields.custom.tes1),Google: Custom Product (product.metafields.mm-google-shopping.custom_product),Age group (product.metafields.shopify.age-group),Color (product.metafields.shopify.color-pattern),Material (product.metafields.shopify.material),Target gender (product.metafields.shopify.target-gender),Complementary products (product.metafields.shopify--discovery--product_recommendation.complementary_products),Related products (product.metafields.shopify--discovery--product_recommendation.related_products),Related products settings (product.metafields.shopify--discovery--product_recommendation.related_products_display),Search product boosts (product.metafields.shopify--discovery--product_search_boost.queries),Variant Image,Variant Weight Unit,Variant Tax Code,Cost per item,Included / India,Price / India,Compare At Price / India,Included / norway,Price / norway,Compare At Price / norway,Status",
+        ...data.map(item => 
+          Object.values(item).map(value => `"${value}"`).join(",")
+        )
+      ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Variant_Option_product_data.csv";
+  document.body.appendChild(link)
+;
+  link.click();
+  document.body.removeChild(link)
+;
+}
