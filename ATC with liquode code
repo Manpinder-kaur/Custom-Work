@@ -1,0 +1,32 @@
+{% assign tags_exist = false %}
+{% for tags in customer.tags %}
+  {% assign lower_tag = tags | downcase %}
+        {% if lower_tag contains 'vip' or lower_tag contains 'dealer' %}
+          {% assign tags_exist = true %}
+          {% endif %}
+  {% endfor %}
+
+
+{% if tags_exist == true  %}
+ 
+<form id="bonusProductForm" action="/cart/add" method="post" style="display:none;">
+    <input type="hidden" name="id" value="43986492719244"> 
+    <input type="hidden" name="quantity" value="1">
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      
+      var checkoutBtn = document.querySelector('.Cart__Checkout');  
+
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function(e) {
+          e.preventDefault();  
+ document.getElementById('bonusProductForm').submit();
+ setTimeout(function() {
+            window.location.href = '/checkout';  
+          }, 1000); 
+        });
+      }
+    });
+  </script>
