@@ -1,3 +1,15 @@
+{%- for line_item in cart.items -%}
+  {% if line_item.product.id == 8123574026380 %}
+    <script>
+      var lineIndex = {{ forloop.index }};
+      var newUrl = `/cart/change?line=${lineIndex}&quantity=0`;
+      window.history.pushState({}, '', newUrl);
+        window.location.href = "/cart/change?line={{ forloop.index }}&quantity=0";
+
+    </script>
+  {% endif %}
+{%- endfor -%}
+
 {% assign tags_exist = false %}
 {% for tags in customer.tags %}
   {% assign lower_tag = tags | downcase %}
@@ -30,3 +42,6 @@
       }
     });
   </script>
+
+  
+ {% endif %} 
