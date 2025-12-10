@@ -1,0 +1,25 @@
+// Define the attributes you want to update
+const newAttributes = {
+  "Gift Message": "Happy Birthday!",
+  "Delivery Date": "2025-12-25"
+};
+
+// Make a POST request to the /cart/update.js endpoint
+fetch('/cart/update.js', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    attributes: newAttributes
+  })
+})
+.then(response => response.json())
+.then(data => {
+  console.log('Cart updated successfully:', data);
+  // You can now update your cart display or trigger other actions
+})
+.catch(error => {
+  console.error('Error updating cart attributes:', error);
+});
