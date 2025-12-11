@@ -1,0 +1,54 @@
+To make app live 
+
+Create app with remix router and open partenr  app ->version--> Redirect URLs
+
+paste below code
+
+["https://wall-than-together-statements.trycloudflare.com/auth/callback", "https://wall-than-together-statements.trycloudflare.com/auth/shopify/callback", "https://wall-than-together-statements.trycloudflare.com/api/auth/shopify/callback"]
+
+
+In  shopify theme liquide
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+  fetch('/cart.js')
+    .then(res => res.json())
+    .then(cart => {
+      let currentAttribute = cart.attributes?.shippingcost;
+      let shippingDiv = document.querySelector(".shippingcost");
+
+      if (!shippingDiv) {
+        console.warn("Element .shippingcost not found.");
+        return;
+      }
+
+      if (currentAttribute && currentAttribute !== "") {
+        console.log("Cart attribute exists. Using existing value:", currentAttribute);
+        //shippingDiv.textContent = currentAttribute;
+        return;
+      }
+
+      // Cart attribute is empty → pick random 49 or 74
+      const options = ["49.95", "74.95"];
+      const shippingValue = options[Math.floor(Math.random() * options.length)];
+
+      shippingDiv.textContent = `$${shippingValue}`;
+      console.log("Cart attribute empty. Randomly picked value:", shippingValue);
+
+      // Save to cart
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attributes: { shippingcost: shippingValue }
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Saved shipping value to cart:", data));
+    });
+});
+
+
+    </script>
+    {% if cart.attributes.shippingcost %}
+  {% assign shipping_cost = cart.attributes.shippingcost %}
+{% endif %}
